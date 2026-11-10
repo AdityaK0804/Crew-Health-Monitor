@@ -1,0 +1,9 @@
+node_modules
+dist
+data/*.sqlite*
+legacy/
+.claude/
+.vercel
+
+.vercel
+.env

@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+/* Colour rule for the whole app: the interface is neutral. Colour appears only
+   where something needs attention (amber = check, red = urgent). */
+@theme {
+  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+  --color-ground: #09090b;
+  --color-bar: #0c0c0e;
+  --color-panel: #111113;
+  --color-raised: #19191c;
+  --color-line: #232327;
+  --color-line-soft: #1a1a1e;
+  --color-line-strong: #3a3a41;
+  --color-ink: #ededef;
+  --color-muted: #a1a1aa;
+  --color-dim: #8b8b94;
+  --color-accent: #ededef;
+  --color-ok: #a1a1aa;
+  --color-ok-bg: #19191c;
+  --color-check: #f5a524;
+  --color-check-bg: #2e2209;
+  --color-urgent: #ff7a7f;
+  --color-urgent-bg: #33121a;
+  --color-sim: #a1a1aa;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+/* Every button gives a physical press response. */
+.press { transition: transform 120ms var(--ease-out-expo), background-color 160ms, border-color 160ms, color 160ms; }
+.press:active:not(:disabled) { transform: scale(0.97); }
+
+/* Body-scan marker. Flagged markers pulse; normal ones stay still. */
+.marker-ring { animation: marker-pulse 1.8s var(--ease-out-expo) infinite; }
+@keyframes marker-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+input[type="range"].day-range { appearance: none; height: 28px; background: transparent; cursor: ew-resize; }
+input[type="range"].day-range::-webkit-slider-runnable-track { height: 2px; background: var(--color-line-strong); }
+input[type="range"].day-range::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; margin-top: -8px; border-radius: 999px; background: var(--color-ink); border: 3px solid var(--color-ground); transition: transform 120ms; }
+input[type="range"].day-range:active::-webkit-slider-thumb { transform: scale(1.25); }
+input[type="range"].day-range::-moz-range-track { height: 2px; background: var(--color-line-strong); }
+input[type="range"].day-range::-moz-range-thumb { width: 14px; height: 14px; border-radius: 999px; background: var(--color-ink); border: 3px solid var(--color-ground); }
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-ring { animation: none; opacity: 0.5; transform: scale(1.6); }
+  .press { transition: none; }
+}
+
+/* Quiet scrollbars inside panels. */
+* { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
