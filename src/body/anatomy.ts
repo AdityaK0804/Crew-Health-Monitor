@@ -85,6 +85,9 @@ export function loadAnatomy(): Promise<Record<Build, Body> | null> {
           hematocrit: at('aorta', 0, -0.1, 0),
           urine: at('left kidney'),
           mood: at('brain', 0, -0.02, 0.02),
+          immune: at('heart', -0.02, 0.1, 0.05),
+          vitd: [0.1, b.height * 0.5, 0.03],
+          bodymass: at('small intestine', 0, 0.04, 0.06),
           basics: at('heart', 0.09, 0.07, 0.04),
           exercise: [-0.1, b.height * 0.52, 0.02],
         }

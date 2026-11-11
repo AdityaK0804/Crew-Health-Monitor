@@ -3,12 +3,13 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CheckCircle, Lightning } from '@phosphor-icons/react'
 import { SCENARIOS, type Scenario } from './data/emergency'
 import { CREW } from './data/simulatedCrew'
-import { delayMinutes } from './data/users'
+import { linkDelay, type MissionId } from './data/missions'
 import { getReading, type CheckIns, type Subject } from './model'
 import { Button, EASE } from './ui'
 
 interface Props {
   day: number
+  mission: MissionId
   subjects: Subject[]
   checkIns: CheckIns
   defaultPatient: string
@@ -18,7 +19,7 @@ interface Props {
 
 const RANK = { green: 0, amber: 1, red: 2 }
 
-export default function Emergency({ day, subjects, checkIns, defaultPatient, onSave, onExit }: Props) {
+export default function Emergency({ day, mission, subjects, checkIns, defaultPatient, onSave, onExit }: Props) {
   const [patient, setPatient] = useState(CREW.some((c) => c.id === defaultPatient) ? defaultPatient : CREW[0].id)
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [step, setStep] = useState(0)
@@ -180,7 +181,7 @@ export default function Emergency({ day, subjects, checkIns, defaultPatient, onS
             </h1>
             {saved === 'yes' && (
               <p className="mt-2 text-lg text-muted">
-                It reaches Earth in about {delayMinutes(day)} minutes. A reply takes at least {delayMinutes(day) * 2}. Keep caring for the patient.
+                It reaches Earth in {linkDelay(mission, day).text}. Keep caring for the patient while you wait for a reply.
               </p>
             )}
             <ol className="mt-6 divide-y divide-line-soft rounded-2xl border border-line bg-panel">

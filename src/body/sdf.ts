@@ -170,6 +170,12 @@ export function regionOf(findingId: string, build: Build): { pos: Vec3; label: s
       return { pos: [0.045, 1.49, 0.02], label: 'Neck vein' }
     case 'vitals':
       return { pos: [-0.04, 1.3, 0.105], label: 'Heart and lungs' }
+    case 'immune':
+      return { pos: [0, 1.42, 0.07], label: 'Immune cells' }
+    case 'vitd':
+      return { pos: [0.1, 0.86, 0.03], label: 'Vitamin D' }
+    case 'bodymass':
+      return { pos: [0, 1.05, 0.1], label: 'Body mass' }
     case 'mood':
       return { pos: [0, 1.7, 0.02], label: 'Mood' }
     case 'basics':

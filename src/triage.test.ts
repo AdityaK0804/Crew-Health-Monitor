@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { linkDelay } from './data/missions'
 import { SOURCES } from './data/sources'
 import { CREW, MISSION_DAYS, cabinOn, readingOn } from './data/simulatedCrew'
 import { assessCabin, assessCrew, compareModes, worstLevel, type CabinReading, type CrewBaseline, type CrewReading } from './triage'
 
-const baseline: CrewBaseline = { hematocritPct: 45, onsdMm: 5.2, hctRefMin: 38.5, hctRefMax: 50 }
+const baseline: CrewBaseline = { hematocritPct: 45, onsdMm: 5.2, hctRefMin: 38.5, hctRefMax: 50, wbcK: 9.5, lymphK: 2.2, vitaminDNgMl: 40, bodyMassKg: 80 }
 const normal: CrewReading = {
   hematocritPct: 45,
   onsdMm: 5.2,
@@ -21,8 +22,12 @@ const normal: CrewReading = {
   systolicBp: 116,
   diastolicBp: 74,
   glucoseMgDl: 92,
+  wbcK: 9.5,
+  lymphK: 2.2,
+  vitaminDNgMl: 40,
+  bodyMassKg: 80,
 }
-const cabin: CabinReading = { co2MmHg: 2.2, cumulativeDoseMSv: 20, missionDay: 11 }
+const cabin: CabinReading = { co2MmHg: 2.2, cumulativeDoseMSv: 20, missionDay: 11, doseRateMSvDay: 1.8, setting: 'on the way to Mars', rateSourceId: 'RAD_RATE' }
 const level = (r: Partial<CrewReading>, mode: 'earth' | 'space', id: string, c = cabin, b = baseline) =>
   assessCrew({ ...normal, ...r }, b, c, mode).find((f) => f.id === id)?.level
 
@@ -38,7 +43,7 @@ describe('hematocrit', () => {
 })
 
 describe('optic nerve sheath', () => {
-  const big = { ...baseline, onsdMm: 6.1 }
+  const big: CrewBaseline = { ...baseline, onsdMm: 6.1 }
   it('a large but unchanged diameter alarms Earth rules only', () => {
     expect(level({ onsdMm: 6.15 }, 'earth', 'onsd', cabin, big)).toBe('amber')
     expect(level({ onsdMm: 6.15 }, 'space', 'onsd', cabin, big)).toBe('green')
@@ -112,6 +117,49 @@ describe('indicators named by the challenge', () => {
     expect(level({ bodyTempC: 38.4 }, 'space', 'basics')).toBe('amber')
     expect(level({ systolicBp: 150 }, 'space', 'basics')).toBe('amber')
     expect(level({ glucoseMgDl: 60 }, 'earth', 'basics')).toBe('amber')
+  })
+})
+
+describe('immune and nutrition signals', () => {
+  it('a 20% in-flight rise in white cells alarms Earth rules but not space rules', () => {
+    expect(level({ wbcK: 11.4 }, 'earth', 'immune')).toBe('amber')
+    expect(level({ wbcK: 11.4 }, 'space', 'immune')).toBe('green')
+    expect(level({ wbcK: 14 }, 'space', 'immune')).toBe('amber')
+    expect(level({ lymphK: 1.2 }, 'space', 'immune')).toBe('amber')
+  })
+  it('vitamin D of 26 passes Earth rules but is flagged in space', () => {
+    expect(level({ vitaminDNgMl: 26 }, 'earth', 'vitd')).toBe('green')
+    expect(level({ vitaminDNgMl: 26 }, 'space', 'vitd')).toBe('amber')
+    expect(level({ vitaminDNgMl: 18 }, 'earth', 'vitd')).toBe('amber')
+  })
+  it('losing more than 5% of body mass is flagged', () => {
+    expect(level({ bodyMassKg: 79 }, 'space', 'bodymass')).toBe('green')
+    expect(level({ bodyMassKg: 75 }, 'space', 'bodymass')).toBe('amber')
+  })
+})
+
+describe('mission settings', () => {
+  it('radiation builds up at the rate for each setting, with its own source', () => {
+    expect(cabinOn(60, 'mars').cumulativeDoseMSv).toBe(108)
+    expect(cabinOn(60, 'moon').cumulativeDoseMSv).toBeCloseTo(82.2, 1)
+    expect(cabinOn(60, 'iss').cumulativeDoseMSv).toBeCloseTo(43.8, 1)
+    for (const m of ['iss', 'moon', 'mars'] as const) {
+      const f = assessCabin(cabinOn(60, m), 'space').find((x) => x.id === 'radiation')!
+      for (const id of f.sourceIds) expect(SOURCES[id], id).toBeDefined()
+    }
+  })
+  it('the Moon setting applies a smaller fluid shift than weightlessness', () => {
+    const rivera = CREW.find((c) => c.id === 'C4')!
+    const weightless = readingOn(rivera, 60, 'mars').hematocritPct
+    const moon = readingOn(rivera, 60, 'moon').hematocritPct
+    expect(moon).toBeLessThan(weightless)
+    expect(moon).toBeGreaterThan(rivera.baseline.hematocritPct)
+    expect(readingOn(rivera, 60, 'iss').hematocritPct).toBe(weightless)
+  })
+  it('a message to the Moon takes about a second, to Mars many minutes', () => {
+    expect(linkDelay('moon', 60).demoMs).toBe(1300)
+    expect(linkDelay('mars', 60).minutes).toBe(16)
+    expect(linkDelay('iss', 60).minutes).toBeLessThan(0.02)
   })
 })
 

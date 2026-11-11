@@ -25,9 +25,10 @@ export function Logo() {
   )
 }
 
-export function Chip({ level, className = '' }: { level: Level; className?: string }) {
+export function Chip({ level, className = '', tag }: { level: Level; className?: string; tag?: string }) {
   return (
-    <span className={`inline-flex h-6 min-w-[58px] items-center justify-center rounded-md border px-2 text-xs font-medium ${LEVEL_CHIP[level]} ${className}`}>
+    <span className={`inline-flex h-6 min-w-[58px] items-center justify-center gap-1 rounded-md border px-2 text-xs font-medium ${LEVEL_CHIP[level]} ${className}`}>
+      {tag && <span className="text-[10px] font-normal opacity-70">{tag}</span>}
       {LEVEL_LABEL[level]}
     </span>
   )

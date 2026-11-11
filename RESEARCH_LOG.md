@@ -43,6 +43,38 @@ Confidence: **High** = read from the source or NASA's own summary. **Medium** = 
 | EXERCISE_EARTH | Strength training 2 days a week | WHO 2020 guideline | From memory | Medium | Used for Earth mode. Verify |
 | - | Potassium citrate as a stone countermeasure | NASA ISS study | Reduced stone risk in a double-blind study | Medium | Not used: the app gives no medication advice |
 
+### Added 2026-11-11 (immune and nutrition)
+
+| Id | Claim | Source | What the source says | Confidence | Status |
+|---|---|---|---|---|---|
+| IMMUNE_REF | Lab ranges for white cells and lymphocytes | NASA OSDR OSD-569 CBC file (in `data/osdr/`) | White cells 3.8 to 10.8, lymphocytes 0.85 to 3.9 (x1000 per microlitre), printed beside each real value. Crew pre-flight values copied from the same file | High | Used |
+| IMMUNE_WBC | White cell count is raised in flight | npj Microgravity 2015, 23 astronauts on 6-month ISS missions | Raised white cell count during flight; lymphocyte findings differ between studies | Medium (abstract only) | Used. No lymphocyte threshold claimed |
+| IMMUNE_DEMO | In-flight action level for white cells | none found | - | Low | Demo parameter (40% from own baseline) |
+| VITD_NASA | Vitamin D deficiency below 20 ng/mL, insufficiency 20 to 30 | NASA flight surgeon protocol, NTRS 20130013531 | As stated | Medium (snippet only) | Used. Confirm in the PDF |
+| VITD_FLIGHT | Vitamin D falls during long flights despite supplements | NTRS 20080026180; Smith et al. 2005 | About 25% lower after 4 to 6 month flights in 11 ISS astronauts. Units in the snippet were unclear | Medium | Used. Confirm units in the PDF |
+| MASS | Body mass action level | none found | - | Low | Demo parameter (5% loss) |
+
+Not used from outside suggestions, because no source was given: a lymphocyte "watch below 0.85" space rule attributed to OSD-569 (that file is a 3-day flight with no in-flight samples), a vitamin D dose of 800 to 2000 IU, a calorie-intake cut-off of 80%, ISS and lunar radiation rates.
+
+### Added 2026-11-11 (mission settings)
+
+| Id | Claim | Source | What the source says | Confidence | Status |
+|---|---|---|---|---|---|
+| RAD_MOON | Dose rate on the Moon's surface | Zhang et al., Science Advances 2020;6(39):eaaz1334 (Chang'E-4 LND) | 1,369 microsievert a day dose equivalent, measured in lunar daytime in a lightly shielded lander. Tissue dose may be underestimated | Medium (read through secondary coverage) | Used |
+| RAD_ISS | Dose rate on the ISS | Same paper, ISS over the same period | 731 microsievert a day dose equivalent. Other reviews give 0.2 to 0.5 mSv a day as effective dose | Medium | Used. Chosen because it is in the same unit as the Moon and Mars figures |
+| - | Moon signal delay | Distance divided by the speed of light | About 1.3 seconds one way | High (arithmetic) | Used |
+| - | ISS signal delay | none | "Under 1 second" through relay satellites. Not sourced | Low | Shown as approximate |
+
+### Added 2026-11-11 (closing the mission-setting gaps)
+
+| Id | Claim | Source | What the source says | Confidence | Status |
+|---|---|---|---|---|---|
+| RAD_ISS | ISS dose equivalent about 0.73 mSv a day | DOSIS 3D in Zhang et al. 2020; ESA Active Dosimeter, https://pmc.ncbi.nlm.nih.gov/articles/PMC10919969/ ; Tanpopo dosimetry review | 731 microsievert a day; 758 plus or minus 24 (June 2017), 620 in Columbus; "0.5 to 1 mSv a day" as the typical range. A Russian-segment survey found 226, so location matters | High | Used (0.73). Upgraded from partial |
+| RAD_MOON | Lunar surface 1.37 mSv a day | Zhang et al., Science Advances 2020, https://www.science.org/doi/10.1126/sciadv.aaz1334 | 1,369 microsievert a day. It is the only direct surface measurement, so there is no second source to compare with | High for the measurement | Used. Upgraded from partial |
+| - | ISS link delay under 1 second | NASA, https://www.nasa.gov/missions/station/data-rate-increase-on-the-international-space-station-supports-future-exploration/ | "Less than a one-second delay" for the station-to-ground link. Informal sources report a few seconds of pause in voice conversations | High for the link | Used |
+| GRAVITY_PARTIAL | Fluid shift depends on gravity level | Lee et al., Frontiers in Physiology 2020, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7399573/ | Neck vein area 12 square mm seated at Earth gravity, 24 at 0.75, 34 at 0.5, 68 at 0.25, 103 lying flat. Nine subjects, seconds-long parabolas. Lunar gravity not tested. How much gravity is enough is an open question | Medium (abstract level) | Used as the basis for the Moon note |
+| GRAVITY_DEMO | Moon applies 60% of the weightless fluid shift | our own extrapolation from the row above | (68 - 12) / (103 - 12) is about 0.6 at a quarter of Earth gravity. Moon gravity is lower, so the true figure may be higher | Low | Demo parameter, labelled on screen |
+
 ## 2. Data we can really use
 
 | Data | Where | What it is | Use |

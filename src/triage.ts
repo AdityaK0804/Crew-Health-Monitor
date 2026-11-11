@@ -10,9 +10,26 @@ export interface CrewBaseline {
   /** Pre-flight values for this person. */
   hematocritPct: number
   onsdMm: number
+  /** White blood cells and lymphocytes, in thousands per microlitre. */
+  wbcK: number
+  lymphK: number
+  /** Vitamin D (25-hydroxyvitamin D) in ng/mL. */
+  vitaminDNgMl: number
+  bodyMassKg: number
   /** Lab reference range for hematocrit (differs by sex). */
   hctRefMin: number
   hctRefMax: number
+}
+
+/** An image the crew attached to a check-in. It is stored and shown. It is NOT analysed onboard. */
+export interface ImageAttachment {
+  /** "data:image/jpeg;base64,..." (compressed in the browser first). */
+  dataUrl: string
+  width: number
+  height: number
+  bytes: number
+  attachedAt: string
+  caption?: string
 }
 
 export interface CrewReading {
@@ -36,6 +53,15 @@ export interface CrewReading {
   systolicBp: number
   diastolicBp: number
   glucoseMgDl: number
+  /** White blood cells, thousands per microlitre (same blood sample as hematocrit). */
+  wbcK: number
+  /** Lymphocytes, thousands per microlitre. */
+  lymphK: number
+  /** Vitamin D (25-hydroxyvitamin D), ng/mL. */
+  vitaminDNgMl: number
+  bodyMassKg: number
+  /** Optional image for the eye ultrasound exam. Sent to Earth, not interpreted onboard. */
+  attachment?: ImageAttachment
 }
 
 export interface CabinReading {
@@ -44,6 +70,12 @@ export interface CabinReading {
   /** Dose equivalent since launch. */
   cumulativeDoseMSv: number
   missionDay: number
+  /** Expected dose per day in this mission setting, mSv. */
+  doseRateMSvDay: number
+  /** Completes "expected ...", for example "on the way to Mars". */
+  setting: string
+  /** Source id for the dose rate. */
+  rateSourceId: string
 }
 
 export interface Finding {
@@ -81,6 +113,15 @@ export const THRESHOLDS = {
   bpLowSys: 90, // BASICS (demo)
   glucoseLow: 70, // BASICS (demo)
   glucoseHigh: 180, // BASICS (demo)
+  wbcEarthMinK: 3.8, // IMMUNE_REF (lab range printed in NASA OSD-569)
+  wbcEarthMaxK: 10.8, // IMMUNE_REF
+  lymphEarthMinK: 0.85, // IMMUNE_REF
+  lymphEarthMaxK: 3.9, // IMMUNE_REF
+  wbcRiseReviewPct: 40, // IMMUNE_DEMO (demo). In-flight WBC rise is published (IMMUNE_WBC), the action level is not
+  lymphDropReviewPct: 40, // IMMUNE_DEMO (demo)
+  vitDDeficientNgMl: 20, // VITD_NASA
+  vitDInsufficientNgMl: 30, // VITD_NASA
+  massLossReviewPct: 5, // MASS (demo)
 } as const
 
 const T = THRESHOLDS
@@ -340,9 +381,94 @@ function basics(r: CrewReading): Finding {
   }
 }
 
+
+function immune(r: CrewReading, b: CrewBaseline, mode: Mode): Finding {
+  const wbcRise = ((r.wbcK - b.wbcK) / b.wbcK) * 100
+  const lymphDrop = ((b.lymphK - r.lymphK) / b.lymphK) * 100
+  const measured = `White cells ${r.wbcK.toFixed(1)} (pre-flight ${b.wbcK.toFixed(1)}), lymphocytes ${r.lymphK.toFixed(1)} (pre-flight ${b.lymphK.toFixed(1)}), x1000 per microlitre`
+  const base = { id: 'immune', title: 'White blood cells (immune system)', measured }
+  if (mode === 'earth') {
+    const wbcOut = r.wbcK < T.wbcEarthMinK || r.wbcK > T.wbcEarthMaxK
+    const lymphOut = r.lymphK < T.lymphEarthMinK || r.lymphK > T.lymphEarthMaxK
+    const out = wbcOut || lymphOut
+    return {
+      ...base,
+      level: out ? 'amber' : 'green',
+      why: out ? 'Outside the usual adult lab range. On Earth a high white cell count suggests infection or inflammation.' : 'Inside the usual adult lab range.',
+      next: out ? 'Earth rule: look for infection and repeat the blood count.' : ROUTINE,
+      sourceIds: ['IMMUNE_REF'],
+    }
+  }
+  const wbcHigh = wbcRise > T.wbcRiseReviewPct
+  const lymphLow = lymphDrop > T.lymphDropReviewPct
+  if (wbcHigh || lymphLow) {
+    return {
+      ...base,
+      level: 'amber',
+      why: wbcHigh
+        ? `White cells are up ${wbcRise.toFixed(0)}% on this person's pre-flight value. A rise is common in flight, but this is more than usual.`
+        : `Lymphocytes are down ${lymphDrop.toFixed(0)}% on this person's pre-flight value. Spaceflight can lower or shift lymphocytes.`,
+      next: 'Check for fever, rash or signs of infection. Repeat the blood count. Report at next Earth contact.',
+      sourceIds: ['IMMUNE_WBC', 'IMMUNE_DEMO'],
+    }
+  }
+  return {
+    ...base,
+    level: 'green',
+    why:
+      wbcRise > 3
+        ? `White cells are up ${wbcRise.toFixed(0)}% on pre-flight. A raised count has been reported during long ISS flights, so this alone is not a sign of infection.`
+        : 'Close to the pre-flight value.',
+    next: ROUTINE,
+    sourceIds: ['IMMUNE_WBC'],
+  }
+}
+
+function vitaminD(r: CrewReading, b: CrewBaseline, mode: Mode): Finding {
+  const v = r.vitaminDNgMl
+  const measured = `${v.toFixed(0)} ng/mL (pre-flight ${b.vitaminDNgMl.toFixed(0)} ng/mL)`
+  const base = { id: 'vitd', title: 'Vitamin D (blood level)', measured }
+  if (mode === 'earth') {
+    const low = v < T.vitDDeficientNgMl
+    return {
+      ...base,
+      level: low ? 'amber' : 'green',
+      why: low ? `Below ${T.vitDDeficientNgMl} ng/mL, the usual cut-off for deficiency.` : `At or above ${T.vitDDeficientNgMl} ng/mL, so not flagged as deficient on Earth.`,
+      next: low ? 'Earth rule: take a vitamin D supplement and recheck in a few months.' : ROUTINE,
+      sourceIds: ['VITD_NASA'],
+    }
+  }
+  const low = v < T.vitDInsufficientNgMl
+  return {
+    ...base,
+    level: low ? 'amber' : 'green',
+    why: low
+      ? `Below ${T.vitDInsufficientNgMl} ng/mL. In a sealed cabin there is no sunlight, food is the only source, and ISS crews' levels fell during flight even with supplements. Acting on this band early is our design choice.`
+      : `At or above ${T.vitDInsufficientNgMl} ng/mL. Levels tend to fall during flight, so keep checking.`,
+    next: low ? 'Check you are taking the planned vitamin D supplement and eating the vitamin D food items. Report at next Earth contact.' : ROUTINE,
+    sourceIds: ['VITD_NASA', 'VITD_FLIGHT'],
+  }
+}
+
+function bodyMass(r: CrewReading, b: CrewBaseline): Finding {
+  const loss = ((b.bodyMassKg - r.bodyMassKg) / b.bodyMassKg) * 100
+  const low = loss > T.massLossReviewPct
+  return {
+    id: 'bodymass',
+    title: 'Body mass (food intake check)',
+    level: low ? 'amber' : 'green',
+    measured: `${r.bodyMassKg.toFixed(1)} kg (pre-flight ${b.bodyMassKg.toFixed(1)} kg${loss > 0.5 ? `, down ${loss.toFixed(1)}%` : ''})`,
+    why: low
+      ? `Down ${loss.toFixed(1)}% on pre-flight. Eating too little is a common cause in space. This cut-off is a demo parameter.`
+      : 'Steady compared with pre-flight. Falling body mass is an early sign of eating too little.',
+    next: low ? 'Log what you eat for three days and tell the medical officer. Report at next Earth contact.' : ROUTINE,
+    sourceIds: ['MASS'],
+  }
+}
+
 /** All findings for one crew member, most serious first. */
 export function assessCrew(r: CrewReading, b: CrewBaseline, cabin: CabinReading, mode: Mode): Finding[] {
-  const list = [hematocrit(r, b, mode), opticNerve(r, b, mode), neckVein(r, mode), headache(r, cabin, mode), sleep(r), vitals(r), urine(r, mode), exercise(r, mode), mood(r), basics(r)]
+  const list = [hematocrit(r, b, mode), opticNerve(r, b, mode), neckVein(r, mode), headache(r, cabin, mode), sleep(r), vitals(r), urine(r, mode), exercise(r, mode), mood(r), basics(r), immune(r, b, mode), vitaminD(r, b, mode), bodyMass(r, b)]
   return sortFindings(list.filter((f): f is Finding => f !== null))
 }
 
@@ -390,9 +516,9 @@ export function assessCabin(cabin: CabinReading, mode: Mode): Finding[] {
       title: 'Radiation dose',
       level: frac >= 1 ? 'red' : frac >= T.radWatchFraction ? 'amber' : 'green',
       measured,
-      why: `${(frac * 100).toFixed(0)}% of NASA's ${T.radCareerMSv} mSv career limit. About 1.8 mSv per day is expected on the way to Mars.`,
+      why: `${(frac * 100).toFixed(0)}% of NASA's ${T.radCareerMSv} mSv career limit. About ${cabin.doseRateMSvDay} mSv per day is expected ${cabin.setting}.`,
       next: frac >= T.radWatchFraction ? 'Report at next Earth contact. Use the most shielded area during solar storms.' : ROUTINE,
-      sourceIds: ['RAD_RATE', 'RAD_LIMIT', 'RAD_WATCH'],
+      sourceIds: [cabin.rateSourceId, 'RAD_LIMIT', 'RAD_WATCH'],
     }
   }
   return sortFindings([co2, rad])

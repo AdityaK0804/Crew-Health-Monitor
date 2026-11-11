@@ -61,6 +61,21 @@ export const GUIDE: Record<string, Guide> = {
     what: 'Blood pressure, body temperature and blood sugar: the basic checks a doctor would do first. With no doctor nearby, you do them yourself.',
     how: 'Arm cuff for blood pressure, thermometer for temperature, finger-prick meter for blood sugar.',
   },
+  immune: {
+    hazard: 'Space radiation',
+    what: 'The count of white blood cells, the cells that fight infection, and of lymphocytes, one important type. Radiation, stress, poor sleep and diet can all change the immune system in flight, so crews have reported more rashes and reactivated viruses.',
+    how: 'Taken from the same finger-prick or small blood sample as the hematocrit, in the onboard blood analyser.',
+  },
+  vitd: {
+    hazard: 'Closed environment',
+    what: 'The level of vitamin D in your blood. Your skin makes it from sunlight, which you do not get in a sealed cabin, so food and supplements are the only source. Bones need it to absorb calcium.',
+    how: 'A blood sample. On the ISS these samples go back to Earth for analysis, so the result comes late.',
+  },
+  bodymass: {
+    hazard: 'Distance from Earth',
+    what: 'Your body mass compared with before the flight. Food is limited to what was packed, and falling body mass is an early sign of eating too little.',
+    how: 'Weigh yourself on the onboard mass device once a week.',
+  },
   co2: {
     hazard: 'Closed environment',
     what: 'Carbon dioxide in the cabin air. Everyone breathes it out and machines must remove it.',

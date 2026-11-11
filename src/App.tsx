@@ -7,6 +7,8 @@ import EarthLink from './EarthLink'
 import SignIn from './SignIn'
 import Today from './Today'
 import { clearCheckIns, fetchState, getToken, isDemoMode, logout, postEmergency, postMessage, postNote, postTask, putCheckIn, type Result, type ServerState } from './api'
+import MissionMenu from './MissionMenu'
+import type { MissionId } from './data/missions'
 import { MISSION_DAYS } from './data/simulatedCrew'
 import { canSee } from './data/users'
 import { CABIN_ID, buildDay, reportText } from './model'
@@ -33,6 +35,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('today')
   const [mode, setMode] = useState<Mode>('space')
   const [day, setDay] = useState(60)
+  const [mission, setMission] = useState<MissionId>('mars')
   const [selected, setSelected] = useState('')
   const [emergency, setEmergency] = useState(false)
   const [checkInOpen, setCheckInOpen] = useState(false)
@@ -96,7 +99,7 @@ export default function App() {
 
   const user = state?.user
   const visible = useCallback((id: string) => id === CABIN_ID || (user !== undefined && canSee(user, id)), [user])
-  const subjects = useMemo(() => (state ? buildDay(day, state.checkIns) : []), [day, state])
+  const subjects = useMemo(() => (state ? buildDay(day, state.checkIns, mission) : []), [day, state, mission])
   const exitEmergency = useCallback(() => setEmergency(false), [])
 
   if (!signedIn) return <SignIn onDone={() => setSignedIn(true)} />
@@ -104,7 +107,7 @@ export default function App() {
 
   const isEarth = user.role === 'surgeon'
   const mySelected = selected && visible(selected) ? selected : user.id
-  const send = async (body: string, kind: 'message' | 'report' = 'message') => apply(await postMessage(day, body, kind), kind === 'report' ? 'Report sent. See Earth link for when it arrives.' : undefined)
+  const send = async (body: string, kind: 'message' | 'report' = 'message') => apply(await postMessage(day, body, kind, mission), kind === 'report' ? 'Report sent. See Earth link for when it arrives.' : undefined)
   const saveCheckIn = async (crewId: string, r: CrewReading) => {
     setCheckInOpen(false)
     setSelected(crewId)
@@ -114,17 +117,17 @@ export default function App() {
   if (emergency && !isEarth) {
     return (
       <Suspense fallback={Loading}>
-        <Emergency day={day} subjects={subjects} checkIns={state.checkIns} defaultPatient={mySelected} onSave={async (rec) => apply(await postEmergency(rec))} onExit={exitEmergency} />
+        <Emergency day={day} mission={mission} subjects={subjects} checkIns={state.checkIns} defaultPatient={mySelected} onSave={async (rec) => apply(await postEmergency({ ...rec, mission }))} onExit={exitEmergency} />
       </Suspense>
     )
   }
 
   return (
     <div className="min-h-[100dvh]">
-      <header className="z-10 flex flex-wrap lg:sticky lg:top-0 items-center gap-x-4 gap-y-2 border-b border-line bg-bar/95 px-4 py-2.5 backdrop-blur-md sm:px-6">
+      <header className="z-10 flex flex-wrap lg:sticky lg:top-0 items-center gap-x-3 gap-y-2 border-b border-line bg-bar/95 px-4 py-2.5 backdrop-blur-md sm:px-6">
         <div className="flex items-center gap-3">
           <Logo />
-          <p className="hidden text-[15px] font-semibold tracking-tight sm:block">Crew Health Monitor</p>
+          <p className="hidden text-[15px] font-semibold tracking-tight 2xl:block">Crew Health Monitor</p>
         </div>
 
         {!isEarth && (
@@ -141,12 +144,13 @@ export default function App() {
 
         <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="rounded-md border border-line-strong px-2 py-1 font-mono text-[11px] tracking-[0.08em] text-muted">SIMULATED DATA</span>
+          <MissionMenu value={mission} day={day} onChange={setMission} />
           <label className="flex items-baseline gap-2">
             <span className="text-xs text-muted">Day</span>
             <AnimatedNumber value={day} className="w-7 text-right font-mono text-lg font-medium tabular-nums" />
             <span className="font-mono text-xs text-dim">/ {MISSION_DAYS}</span>
             {(isEarth || tab !== 'health') && (
-              <input type="range" min={1} max={MISSION_DAYS} value={day} onChange={(e) => setDay(Number(e.target.value))} aria-label="Mission day (demo control)" className="day-range hidden w-24 md:block" />
+              <input type="range" min={1} max={MISSION_DAYS} value={day} onChange={(e) => setDay(Number(e.target.value))} aria-label="Mission day (demo control)" className="day-range hidden w-20 2xl:block" />
             )}
           </label>
           {!isEarth && (
@@ -180,7 +184,7 @@ export default function App() {
 
       <Suspense fallback={Loading}>
       {isEarth ? (
-        <EarthLink side="earth" day={day} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
+        <EarthLink side="earth" day={day} mission={mission} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
       ) : tab === 'today' ? (
         <Today
           user={user}
@@ -197,6 +201,7 @@ export default function App() {
           user={user}
           day={day}
           setDay={setDay}
+          mission={mission}
           mode={mode}
           setMode={setMode}
           subjects={subjects}
@@ -211,9 +216,9 @@ export default function App() {
           onEmergency={() => setEmergency(true)}
         />
       ) : tab === 'ask' ? (
-        <Ask subjects={subjects.filter((s) => visible(s.id))} meId={user.id} day={day} />
+        <Ask subjects={subjects.filter((s) => visible(s.id))} meId={user.id} day={day} mission={mission} />
       ) : (
-        <EarthLink side="ship" day={day} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
+        <EarthLink side="ship" day={day} mission={mission} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
       )}
       </Suspense>
 
@@ -223,6 +228,7 @@ export default function App() {
             key="checkin"
             day={day}
             checkIns={state.checkIns}
+            mission={mission}
             crewIds={subjects.filter((s) => s.id !== CABIN_ID && visible(s.id)).map((s) => s.id)}
             initialCrewId={mySelected}
             onSave={saveCheckIn}

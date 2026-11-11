@@ -2,13 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CaretDown, Heartbeat, Lock, NotePencil, PaperPlaneTilt, Siren, Trash, Warning } from '@phosphor-icons/react'
 import BodyScan, { type Hotspot } from './BodyScan'
+import TrendChart from './TrendChart'
 import type { ActivityEvent } from './api'
 import { regionOf } from './body/sdf'
 import { CREW, MISSION_DAYS, cabinOn } from './data/simulatedCrew'
 import { GUIDE } from './data/signalGuide'
 import { SOURCES } from './data/sources'
+import { MISSIONS, type MissionId } from './data/missions'
 import type { User } from './data/users'
-import { flagged, getReading, series, summarize, timeline, type CheckIns, type Provenance, type Subject } from './model'
+import { ATTACHMENT_LABEL } from './imageAttach'
+import { flagged, getReading, latestAttachment, series, summarize, timeline, type CheckIns, type Provenance, type Subject } from './model'
+import type { ImageAttachment } from './triage'
 import { THRESHOLDS, type Finding, type Level, type Mode } from './triage'
 import { AnimatedNumber, Button, Chip, EASE, Gauge, LEVEL_LINE, SPRING, Sparkline } from './ui'
 
@@ -20,6 +24,7 @@ interface Props {
   user: User
   day: number
   setDay: (d: number) => void
+  mission: MissionId
   mode: Mode
   setMode: (m: Mode) => void
   subjects: Subject[]
@@ -34,16 +39,16 @@ interface Props {
   onEmergency: () => void
 }
 
-export default function Overview({ user, day, setDay, mode, setMode, subjects, checkIns, events, visible, selected, setSelected, onSendReport, onClear, onCheckIn, onEmergency }: Props) {
+export default function Overview({ user, day, setDay, mission, mode, setMode, subjects, checkIns, events, visible, selected, setSelected, onSendReport, onClear, onCheckIn, onEmergency }: Props) {
   const [openRow, setOpenRow] = useState<string | null>(null)
   const [hoverRow, setHoverRow] = useState<string | null>(null)
   const mine = useMemo(() => subjects.filter((s) => visible(s.id)), [subjects, visible])
   const sum = useMemo(() => summarize(mine), [mine])
-  const days = useMemo(() => timeline(checkIns, visible), [checkIns, visible])
+  const days = useMemo(() => timeline(checkIns, visible, mission), [checkIns, visible, mission])
   const current = mine.find((s) => s.id === selected) ?? mine[0]
   const rows = mode === 'earth' ? current.earth : current.space
   const crew = CREW.find((c) => c.id === current.id)
-  const cabin = cabinOn(day)
+  const cabin = cabinOn(day, mission)
   const manualCount = Object.keys(checkIns).length
   const attention = rows.filter((f) => f.level !== 'green')
   const normal = rows.filter((f) => f.level === 'green')
@@ -138,7 +143,7 @@ export default function Overview({ user, day, setDay, mode, setMode, subjects, c
               <div className="min-h-0 flex-1">
                 <BodyScan build={crew.build} hotspots={hotspots} activeId={hoverRow ?? openRow} focusId={openRow} onPick={(id) => setOpenRow(openRow === id ? null : id)} />
               </div>
-              {!current.manual && <LiveVitals base={getReading(checkIns, crew, day)} />}
+              {!current.manual && <LiveVitals base={getReading(checkIns, crew, day, mission)} />}
             </>
           ) : (
             <div className="flex flex-1 flex-wrap items-center justify-center gap-x-16 gap-y-10 px-6 pt-24 pb-10">
@@ -153,11 +158,6 @@ export default function Overview({ user, day, setDay, mode, setMode, subjects, c
             <h2 className="font-semibold">
               {attention.length === 0 ? 'Nothing needs attention' : `${attention.length} need${attention.length === 1 ? 's' : ''} attention`}
             </h2>
-            <span className="flex gap-2 text-[11px] text-dim">
-              <span className="w-[58px] text-center">Earth</span>
-              <span className="w-[58px] text-center">Space</span>
-              <span className="w-4" />
-            </span>
           </div>
           <div className="min-h-0 flex-1 lg:overflow-y-auto">
             <AnimatePresence mode="wait" initial={false}>
@@ -173,11 +173,13 @@ export default function Overview({ user, day, setDay, mode, setMode, subjects, c
                       earth={current.earth.find((x) => x.id === f.id) ?? f}
                       space={current.space.find((x) => x.id === f.id) ?? f}
                       info={current.info[f.id]}
-                      trend={series(checkIns, current.id, f.id, day)}
+                      trend={series(checkIns, current.id, f.id, day, 30, mission)}
+                      attachment={f.id === 'onsd' ? latestAttachment(checkIns, current.id, day) : null}
                       open={openRow === f.id}
                       onToggle={() => setOpenRow(openRow === f.id ? null : f.id)}
                       onHover={(on) => setHoverRow(on ? f.id : null)}
                       onCheckIn={crew ? onCheckIn : undefined}
+                      mission={mission}
                       onEmergency={onEmergency}
                     />
                   </div>
@@ -189,10 +191,13 @@ export default function Overview({ user, day, setDay, mode, setMode, subjects, c
         </section>
       </div>
 
+      <TrendChart mission={mission} checkIns={checkIns} subjectId={current.id} subjectName={current.name} rows={rows} day={day} />
+
       <section className={`${PANEL} mt-4 px-5 py-4`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-semibold">Mission timeline</h2>
+            <p className="mt-1 text-xs text-muted">Setting: {MISSIONS[mission].name}. The setting changes the signal delay and the radiation rate. On the Moon the simulation also assumes a smaller fluid shift.</p>
             <p className="mt-1 text-xs text-muted">Flagged signals per day. Grey bars up: Earth rules. White bars down: space rules. Drag to change the day.</p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -260,7 +265,7 @@ function RosterRow({ s, active, onPick }: { s: Subject; active: boolean; onPick:
       {active && <motion.span layoutId="roster-active" transition={SPRING} className="absolute inset-0 rounded-xl border border-line-strong bg-raised" />}
       <span className="relative flex min-w-0 flex-1 flex-col">
         <span className="font-medium">{s.name}</span>
-        <span className="truncate text-xs text-muted">{s.role}</span>
+        <span className="text-xs leading-snug text-muted">{s.role}</span>
       </span>
       <span className="relative flex gap-1" aria-label={`${flagged(s.earth)} flagged by Earth rules, ${flagged(s.space)} by space rules`}>
         <Count list={s.earth} />
@@ -284,17 +289,19 @@ interface RowProps {
   space: Finding
   info?: Provenance
   trend: { values: number[]; baseline?: number }
+  attachment?: { attachment: ImageAttachment; day: number } | null
   open: boolean
   onToggle: () => void
   onHover: (on: boolean) => void
   onCheckIn?: () => void
   onEmergency: () => void
+  mission: MissionId
 }
 
 const ACTION_BOX: Record<Level, string> = { green: 'bg-raised', amber: 'bg-check-bg', red: 'bg-urgent-bg' }
 const ACTION_TEXT: Record<Level, string> = { green: 'text-muted', amber: 'text-check', red: 'text-urgent' }
 
-function SignalRow({ index, f, compact, mode, earth, space, info, trend, open, onToggle, onHover, onCheckIn, onEmergency }: RowProps) {
+function SignalRow({ index, f, compact, mode, earth, space, info, trend, attachment, open, onToggle, onHover, onCheckIn, onEmergency, mission }: RowProps) {
   const ref = useRef<HTMLDivElement>(null)
   // When a row opens (for example from a marker on the body), bring it into view.
   useEffect(() => {
@@ -313,8 +320,8 @@ function SignalRow({ index, f, compact, mode, earth, space, info, trend, open, o
       <button onClick={onToggle} aria-expanded={open} className={`flex w-full flex-col px-5 text-left hover:bg-raised/50 ${compact ? 'gap-0.5 py-2.5' : 'gap-2 py-3.5'}`}>
         <span className="flex w-full items-center gap-2">
           <span className={`min-w-0 flex-1 ${compact ? 'text-muted' : 'text-[15px] font-semibold'}`}>{f.title}</span>
-          <Chip level={earth.level} />
-          <Chip level={space.level} />
+          <Chip level={earth.level} tag="Earth" />
+          <Chip level={space.level} tag="Space" />
           <motion.span animate={{ rotate: open ? 180 : 0 }} transition={SPRING} className="text-dim">
             <CaretDown size={16} />
           </motion.span>
@@ -361,6 +368,16 @@ function SignalRow({ index, f, compact, mode, earth, space, info, trend, open, o
 
               <p className="leading-relaxed">{mode === 'earth' ? earth.why : space.why}</p>
 
+              {attachment && (
+                <figure className="rounded-xl border border-line p-3 text-[13px]">
+                  <img src={attachment.attachment.dataUrl} alt={attachment.attachment.caption ?? 'Attached eye ultrasound'} className="max-h-72 w-auto max-w-full rounded-lg border border-line-strong" />
+                  <figcaption className="mt-2 leading-relaxed text-muted">
+                    <span className="text-ink">Attached image, day {attachment.day}.</span> {attachment.attachment.caption ? `${attachment.attachment.caption}. ` : ''}
+                    {ATTACHMENT_LABEL}
+                  </figcaption>
+                </figure>
+              )}
+
               <div className="grid grid-cols-2 gap-3 text-[13px]">
                 {([['Earth rules', earth], ['Space rules', space]] as const).map(([label, x]) => (
                   <div key={label} className={`rounded-xl border p-3 ${(label === 'Earth rules') === (mode === 'earth') ? 'border-line-strong' : 'border-line'}`}>
@@ -383,6 +400,15 @@ function SignalRow({ index, f, compact, mode, earth, space, info, trend, open, o
                   <p className="mt-1.5 text-muted">
                     <span className="text-ink">How to measure:</span> {GUIDE[f.id].how}
                   </p>
+                  {GUIDE[f.id].hazard === 'Gravity changes' && MISSIONS[mission].gravity > 0 && (
+                    <p className="mt-2 rounded-lg bg-check-bg px-3 py-2 text-check">
+                      On the Moon: gravity is one sixth of Earth's. These rules come from weightless missions. Fluid should move toward the head less than in weightlessness, but nobody has measured a long stay in Moon gravity.{' '}
+                      <a href={SOURCES.GRAVITY_PARTIAL.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+                        Short-flight study
+                      </a>
+                      . The simulation assumes 60% of the weightless change (demo parameter).
+                    </p>
+                  )}
                 </div>
               )}
 

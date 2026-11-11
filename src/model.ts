@@ -3,9 +3,10 @@
 // and blood tests only on their scheduled days. Each value carries where it came from and
 // how old it is. A crew check-in replaces the feed for that person and day.
 
+import type { MissionId } from './data/missions.ts'
 import { CREW, MISSION_DAYS, cabinOn, readingOn, type CrewMember } from './data/simulatedCrew.ts'
 import { SOURCES } from './data/sources.ts'
-import { assessCabin, assessCrew, type CrewReading, type Finding, type Mode } from './triage.ts'
+import { assessCabin, assessCrew, type CrewReading, type Finding, type ImageAttachment, type Mode } from './triage.ts'
 
 export const CABIN_ID = 'cabin'
 
@@ -33,6 +34,9 @@ export const FEEDS: Record<string, Feed> = {
   onsd: { source: 'Ultrasound exam', every: 14, staleAfter: 10, auto: false },
   ijv: { source: 'Ultrasound exam', every: 14, staleAfter: 10, auto: false },
   hematocrit: { source: 'Blood analyser', every: 30, staleAfter: 21, auto: false },
+  immune: { source: 'Blood analyser', every: 30, staleAfter: 21, auto: false },
+  vitd: { source: 'Blood sample (analysed on Earth)', every: 60, staleAfter: 75, auto: false },
+  bodymass: { source: 'Body mass device', every: 7, staleAfter: 10, auto: false },
   co2: { source: 'Cabin sensor', every: 1, staleAfter: 1, auto: true },
   radiation: { source: 'Cabin dosimeter', every: 1, staleAfter: 1, auto: true },
 }
@@ -60,14 +64,36 @@ function provenance(id: string, day: number, manual: boolean): Provenance {
 }
 
 /** What the system knows about one crew member on a day: each value from its latest measurement. */
-export function getReading(checkIns: CheckIns, crew: CrewMember, day: number): CrewReading {
+export function getReading(checkIns: CheckIns, crew: CrewMember, day: number, mission: MissionId = 'mars'): CrewReading {
   const manual = checkIns[keyOf(crew.id, day)]
-  const today = readingOn(crew, day)
+  const today = readingOn(crew, day, mission)
   if (manual) return { ...today, ...manual }
-  const eye = readingOn(crew, lastMeasured('onsd', day))
+  const eye = readingOn(crew, lastMeasured('onsd', day), mission)
   const vein = readingOn(crew, lastMeasured('ijv', day))
-  const blood = readingOn(crew, lastMeasured('hematocrit', day))
-  return { ...today, hematocritPct: blood.hematocritPct, onsdMm: eye.onsdMm, ijvFlow: vein.ijvFlow, ijvClotSeen: vein.ijvClotSeen }
+  const blood = readingOn(crew, lastMeasured('hematocrit', day), mission)
+  const cells = readingOn(crew, lastMeasured('immune', day))
+  const vitD = readingOn(crew, lastMeasured('vitd', day))
+  const mass = readingOn(crew, lastMeasured('bodymass', day))
+  return {
+    ...today,
+    hematocritPct: blood.hematocritPct,
+    onsdMm: eye.onsdMm,
+    ijvFlow: vein.ijvFlow,
+    ijvClotSeen: vein.ijvClotSeen,
+    wbcK: cells.wbcK,
+    lymphK: cells.lymphK,
+    vitaminDNgMl: vitD.vitaminDNgMl,
+    bodyMassKg: mass.bodyMassKg,
+  }
+}
+
+/** The newest image attached to a check-in for this person, looking back up to 30 days. */
+export function latestAttachment(checkIns: CheckIns, crewId: string, day: number): { attachment: ImageAttachment; day: number } | null {
+  for (let d = day; d >= Math.max(1, day - 30); d--) {
+    const a = checkIns[keyOf(crewId, d)]?.attachment
+    if (a) return { attachment: a, day: d }
+  }
+  return null
 }
 
 export interface Subject {
@@ -80,11 +106,11 @@ export interface Subject {
   info: Record<string, Provenance>
 }
 
-export function buildDay(day: number, checkIns: CheckIns): Subject[] {
-  const cabin = cabinOn(day)
+export function buildDay(day: number, checkIns: CheckIns, mission: MissionId = 'mars'): Subject[] {
+  const cabin = cabinOn(day, mission)
   const crew = CREW.map((c): Subject => {
     const manual = keyOf(c.id, day) in checkIns
-    const r = getReading(checkIns, c, day)
+    const r = getReading(checkIns, c, day, mission)
     const space = assessCrew(r, c.baseline, cabin, 'space')
     return {
       id: c.id,
@@ -131,18 +157,18 @@ export function summarize(subjects: Subject[]) {
   return { earth, space, falseAlarms, missed }
 }
 
-export function timeline(checkIns: CheckIns, visible: (id: string) => boolean) {
+export function timeline(checkIns: CheckIns, visible: (id: string) => boolean, mission: MissionId = 'mars') {
   return Array.from({ length: MISSION_DAYS }, (_, i) => {
-    const s = summarize(buildDay(i + 1, checkIns).filter((x) => visible(x.id)))
+    const s = summarize(buildDay(i + 1, checkIns, mission).filter((x) => visible(x.id)))
     return { day: i + 1, earth: s.earth, space: s.space }
   })
 }
 
-/** Last 30 days of the number behind one signal, for the trend line. */
-export function series(checkIns: CheckIns, subjectId: string, findingId: string, day: number): { values: number[]; baseline?: number } {
-  const days = Array.from({ length: Math.min(30, day) }, (_, i) => day - Math.min(30, day) + 1 + i)
+/** The number behind one signal over the last `span` days (30 for the small trend line). */
+export function series(checkIns: CheckIns, subjectId: string, findingId: string, day: number, span = 30, mission: MissionId = 'mars'): { values: number[]; baseline?: number } {
+  const days = Array.from({ length: Math.min(span, day) }, (_, i) => day - Math.min(span, day) + 1 + i)
   if (subjectId === CABIN_ID) {
-    return { values: days.map((d) => (findingId === 'co2' ? cabinOn(d).co2MmHg : cabinOn(d).cumulativeDoseMSv)) }
+    return { values: days.map((d) => (findingId === 'co2' ? cabinOn(d).co2MmHg : cabinOn(d, mission).cumulativeDoseMSv)) }
   }
   const crew = CREW.find((c) => c.id === subjectId)!
   const pick = (r: CrewReading, d: number): number => {
@@ -163,14 +189,21 @@ export function series(checkIns: CheckIns, subjectId: string, findingId: string,
         return r.moodAvg7d
       case 'basics':
         return r.systolicBp
+      case 'immune':
+        return r.wbcK
+      case 'vitd':
+        return r.vitaminDNgMl
+      case 'bodymass':
+        return r.bodyMassKg
       case 'exercise':
         return r.resistanceSessions7d
       default:
         return r.spo2Pct
     }
   }
-  const baseline = findingId === 'hematocrit' ? crew.baseline.hematocritPct : findingId === 'onsd' ? crew.baseline.onsdMm : undefined
-  return { values: days.map((d) => pick(getReading(checkIns, crew, d), d)), baseline }
+  const baselineById: Record<string, number> = { hematocrit: crew.baseline.hematocritPct, onsd: crew.baseline.onsdMm, immune: crew.baseline.wbcK, vitd: crew.baseline.vitaminDNgMl, bodymass: crew.baseline.bodyMassKg }
+  const baseline = baselineById[findingId]
+  return { values: days.map((d) => pick(getReading(checkIns, crew, d, mission), d)), baseline }
 }
 
 export interface Task {
@@ -186,6 +219,8 @@ export function tasksFor(subject: Subject, day: number): Task[] {
   const exams: [string, string][] = [
     ['onsd', 'Eye and neck ultrasound'],
     ['hematocrit', 'Blood test'],
+    ['vitd', 'Vitamin D blood sample'],
+    ['bodymass', 'Body mass check'],
   ]
   for (const [id, label] of exams) {
     const p = subject.info[id]

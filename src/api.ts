@@ -108,6 +108,6 @@ export const putCheckIn = (crewId: string, day: number, reading: CrewReading) =>
 export const clearCheckIns = () => call<ServerState>('DELETE', '/api/checkins')
 export const postNote = (day: number, text: string) => call<ServerState>('POST', '/api/notes', { day, text })
 export const postTask = (day: number, key: string, done: boolean) => call<ServerState>('POST', '/api/tasks', { day, key, done })
-export const postMessage = (day: number, body: string, kind: 'message' | 'report' = 'message') => call<ServerState>('POST', '/api/messages', { day, body, kind })
-export const postEmergency = (record: { scenario: string; patient: string; day: number; startedAt: string; steps: { title: string; atSeconds: number }[] }) =>
+export const postMessage = (day: number, body: string, kind: 'message' | 'report', mission: string) => call<ServerState>('POST', '/api/messages', { day, body, kind, mission })
+export const postEmergency = (record: { scenario: string; patient: string; day: number; mission: string; startedAt: string; steps: { title: string; atSeconds: number }[] }) =>
   call<ServerState>('POST', '/api/emergencies', record)

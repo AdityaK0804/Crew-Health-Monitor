@@ -4,7 +4,8 @@
 // This is a demo convenience: privacy here is only as strong as the browser, not a server.
 
 import { CREW, MISSION_DAYS } from './data/simulatedCrew.ts'
-import { DEMO_MS_PER_DELAY_MINUTE, DEMO_PIN, USERS, canSee, delayMinutes, type User } from './data/users.ts'
+import { isMission, linkDelay } from './data/missions.ts'
+import { DEMO_PIN, USERS, canSee, type User } from './data/users.ts'
 import { buildDay, flagged, keyOf, type CheckIns } from './model.ts'
 import type { CrewReading } from './triage.ts'
 import { validateReading } from './validate.ts'
@@ -32,12 +33,23 @@ function load(): Db {
     return empty()
   }
 }
-function save(db: Db) {
+function save(db: Db): boolean {
   try {
     localStorage.setItem(KEY, JSON.stringify(db))
+    return true
   } catch {
-    // Storage blocked: changes last until the tab reloads.
+    // Storage blocked or full: changes last until the tab reloads.
+    return false
   }
+}
+
+/** Browser storage holds about 5 MB, so keep only the newest few images. */
+const KEEP_IMAGES = 3
+function dropImages(db: Db, keep: number) {
+  const withImage = Object.entries(db.checkIns)
+    .filter(([, r]) => r.attachment)
+    .sort((a, b) => String(b[1].attachment!.attachedAt).localeCompare(String(a[1].attachment!.attachedAt)))
+  for (const [key, r] of withImage.slice(keep)) db.checkIns[key] = { ...r, attachment: undefined }
 }
 
 const nameOf = (id: string) => USERS.find((u) => u.id === id)?.name ?? id
@@ -67,10 +79,11 @@ function stateFor(db: Db, user: User) {
   }
 }
 
-function sendMessage(db: Db, user: User, kind: string, body: string, day: number) {
-  const delay = delayMinutes(day)
+function sendMessage(db: Db, user: User, kind: string, body: string, day: number, mission: unknown) {
+  const link = linkDelay(isMission(mission) ? mission : 'mars', day)
+  const delay = link.minutes
   const sent = Date.now()
-  db.messages.push({ id: db.nextId++, from_user: user.id, side: user.role === 'surgeon' ? 'earth' : 'ship', kind, body, day, delay_min: delay, sent_at: sent, deliver_at: sent + delay * DEMO_MS_PER_DELAY_MINUTE })
+  db.messages.push({ id: db.nextId++, from_user: user.id, side: user.role === 'surgeon' ? 'earth' : 'ship', kind, body, day, delay_min: delay, sent_at: sent, deliver_at: sent + link.demoMs })
 }
 const logEvent = (db: Db, kind: string, detail: string, crewId: string | null) => db.events.push({ id: db.nextId++, at: new Date().toISOString(), kind, detail, crew_id: crewId })
 
@@ -96,7 +109,7 @@ export function localCall(method: string, path: string, body: Record<string, unk
   if (method === 'POST' && path === '/api/messages') {
     const msg = text(body?.body, 4000)
     if (!msg || !validDay(body?.day)) return fail(400, 'Write a message first.')
-    sendMessage(db, user, body?.kind === 'report' ? 'report' : 'message', msg, body.day)
+    sendMessage(db, user, body?.kind === 'report' ? 'report' : 'message', msg, body.day, body?.mission)
     return done()
   }
   if (user.role === 'surgeon') return fail(403, 'Earth can only read what the crew sent, and reply.')
@@ -111,9 +124,16 @@ export function localCall(method: string, path: string, body: Record<string, unk
     const v = validateReading(body)
     if (!v.ok) return fail(400, v.error)
     db.checkIns[keyOf(crew.id, day)] = v.reading as CrewReading
+    dropImages(db, KEEP_IMAGES)
     const subject = buildDay(day, db.checkIns).find((s) => s.id === crew.id)!
     const urgent = subject.space.some((f) => f.level === 'red')
     logEvent(db, 'checkin', `${crew.name}, day ${day}: check-in by ${user.name}. ${urgent ? 'URGENT finding' : `${flagged(subject.space)} flagged`}`, crew.id)
+    if (!save(db) && v.reading.attachment) {
+      // Storage is full: keep the check-in, drop every image, and say so.
+      dropImages(db, 0)
+      save(db)
+      return fail(413, 'Browser storage is full, so the check-in was saved without its image.')
+    }
     return done()
   }
   if (method === 'DELETE' && path === '/api/checkins') {
@@ -145,7 +165,7 @@ export function localCall(method: string, path: string, body: Record<string, unk
     db.emergencies.push({ id: db.nextId++, scenario, patient: patient.id, by_user: user.id, day: body.day, started_at: String(body?.startedAt ?? ''), steps: clean })
     logEvent(db, 'emergency', `Emergency record: ${scenario}, patient ${patient.name}`, null)
     const lines = clean.map((s) => `  +${Math.floor(s.atSeconds / 60)}:${String(Math.round(s.atSeconds % 60)).padStart(2, '0')}  ${s.title}`)
-    sendMessage(db, user, 'emergency', `EMERGENCY RECORD (practice, simulated)\n${scenario}\nPatient: ${patient.name}. Run by: ${user.name}. Mission day ${body.day}.\nSteps done:\n${lines.join('\n')}`, body.day)
+    sendMessage(db, user, 'emergency', `EMERGENCY RECORD (practice, simulated)\n${scenario}\nPatient: ${patient.name}. Run by: ${user.name}. Mission day ${body.day}.\nSteps done:\n${lines.join('\n')}`, body.day, body?.mission)
     return done()
   }
   return fail(404, 'Not found.')

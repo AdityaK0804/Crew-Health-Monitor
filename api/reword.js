@@ -20,6 +20,25 @@ const RULES = [
 
 export const rewordEnabled = () => Boolean(process.env.GEMINI_API_KEY)
 
+// At most 6 rewordings a minute per visitor and 120 an hour in total (per running server).
+const perVisitor = new Map()
+let hourStart = 0
+let hourCount = 0
+export function allowed(who) {
+  const now = Date.now()
+  if (now - hourStart > 3_600_000) {
+    hourStart = now
+    hourCount = 0
+  }
+  const recent = (perVisitor.get(who) ?? []).filter((t) => now - t < 60_000)
+  if (recent.length >= 6 || hourCount >= 120) return false
+  recent.push(now)
+  perVisitor.set(who, recent)
+  hourCount++
+  if (perVisitor.size > 500) perVisitor.clear()
+  return true
+}
+
 export async function reword(question, text) {
   const key = process.env.GEMINI_API_KEY
   if (!key) return { ok: false, status: 503, error: 'Rewording is off: no Gemini key is set on the server.' }
@@ -51,6 +70,8 @@ export async function reword(question, text) {
 export default async function handler(req, res) {
   if (req.method === 'GET') return res.status(200).json({ enabled: rewordEnabled() })
   if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST.' })
+  const who = String(req.headers['x-forwarded-for'] ?? 'unknown').split(',')[0]
+  if (!allowed(who)) return res.status(429).json({ error: 'Too many rewording requests. Try again in a minute.' })
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {})
   const r = await reword(body.question, body.text)
   return r.ok ? res.status(200).json({ text: r.text }) : res.status(r.status).json({ error: r.error })

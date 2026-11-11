@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight, Check } from '@phosphor-icons/react'
 import type { ServerState } from './api'
+import { sayDelay } from './data/missions'
 import type { User } from './data/users'
 import { CABIN_ID, flagged, tasksFor, type Subject } from './model'
 import { Button, Chip, EASE, SPRING } from './ui'
@@ -141,7 +142,7 @@ export default function Today({ user, day, subjects, state, onTask, onNote, onOp
               {fromEarth.map((m) => (
                 <li key={m.id} className="text-sm leading-relaxed">
                   <span className="block text-xs text-muted">
-                    {m.from_name}, sent {m.delay_min} min before it arrived
+                    {m.from_name}, sent {sayDelay(m.delay_min)} before it arrived
                   </span>
                   {m.body}
                 </li>

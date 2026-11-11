@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { PaperPlaneTilt } from '@phosphor-icons/react'
 import { SUGGESTED, ask, type Answer } from './handbook'
+import type { MissionId } from './data/missions'
 import type { Subject } from './model'
 import { Button, EASE } from './ui'
 
@@ -13,7 +14,7 @@ interface Turn {
   reworded?: string
 }
 
-export default function Ask({ subjects, meId, day }: { subjects: Subject[]; meId: string; day: number }) {
+export default function Ask({ subjects, meId, day, mission }: { subjects: Subject[]; meId: string; day: number; mission: MissionId }) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [draft, setDraft] = useState('')
   const end = useRef<HTMLDivElement>(null)
@@ -31,7 +32,7 @@ export default function Ask({ subjects, meId, day }: { subjects: Subject[]; meId
   const submit = (question: string) => {
     const q = question.trim()
     if (!q) return
-    const answers = ask(q, subjects, meId, day)
+    const answers = ask(q, subjects, meId, day, mission)
     const id = Date.now()
     setTurns((t) => [...t, { id, question: q, answers, reworded: natural && canReword && answers.length > 0 ? 'wait' : undefined }])
     setDraft('')

@@ -5,7 +5,7 @@
 import { SCENARIOS } from './data/emergency.ts'
 import { GUIDE } from './data/signalGuide.ts'
 import { SOURCES } from './data/sources.ts'
-import { delayMinutes } from './data/users.ts'
+import { MISSIONS, linkDelay, type MissionId } from './data/missions.ts'
 import type { Subject } from './model.ts'
 
 export interface Answer {
@@ -31,6 +31,9 @@ const WORDS: Record<string, string[]> = {
   exercise: ['exercise', 'bone', 'bones', 'muscle', 'workout', 'training', 'resistance', 'strength'],
   mood: ['mood', 'sad', 'lonely', 'stress', 'stressed', 'depressed', 'anxious', 'feeling', 'mental'],
   basics: ['pressure', 'temperature', 'fever', 'sugar', 'glucose', 'bp'],
+  immune: ['immune', 'white', 'cells', 'lymphocytes', 'infection', 'wbc', 'rash'],
+  vitd: ['vitamin', 'sunlight', 'supplement', 'nutrition'],
+  bodymass: ['weight', 'mass', 'eating', 'food', 'diet', 'appetite', 'nutrition'],
   co2: ['co2', 'carbon', 'dioxide', 'air', 'cabin', 'scrubber', 'stuffy'],
   radiation: ['radiation', 'dose', 'cosmic', 'solar', 'storm', 'msv'],
 }
@@ -38,7 +41,7 @@ const WORDS: Record<string, string[]> = {
 const STOP = new Set('a an the is are was am i my me you your we our it its of to in on for and or do does did what why how when should can could would about with this that have has be been not no any there here'.split(' '))
 export const tokens = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter((w) => w.length > 1 && !STOP.has(w))
 
-function entries(subjects: Subject[], meId: string, day: number): Entry[] {
+function entries(subjects: Subject[], meId: string, day: number, mission: MissionId): Entry[] {
   const list: Entry[] = []
   for (const s of subjects) {
     for (const space of s.space) {
@@ -70,13 +73,13 @@ function entries(subjects: Subject[], meId: string, day: number): Entry[] {
       }),
     })
   }
-  const delay = delayMinutes(day)
+  const link = linkDelay(mission, day)
   list.push(
     {
       keys: ['earth', 'message', 'reply', 'answer', 'delay', 'long', 'wait', 'contact', 'surgeon', 'doctor'],
       build: () => ({
         title: 'Talking to Earth',
-        lines: [`Today a message takes ${delay} minutes each way, so an answer takes at least ${delay * 2} minutes.`, 'In an emergency, act first and report after.'],
+        lines: [`In this setting (${MISSIONS[mission].name}) a message takes ${link.text} each way.`, MISSIONS[mission].note, 'In an emergency, act first and report after.'],
         sources: [],
       }),
     },
@@ -112,11 +115,11 @@ function entries(subjects: Subject[], meId: string, day: number): Entry[] {
 }
 
 /** Best matching answers for a question. Empty when nothing matches well enough. */
-export function ask(question: string, subjects: Subject[], meId: string, day: number): Answer[] {
+export function ask(question: string, subjects: Subject[], meId: string, day: number, mission: MissionId = 'mars'): Answer[] {
   const q = new Set(tokens(question))
   if (q.size === 0) return []
   const namesAsked = subjects.filter((s) => tokens(s.name).some((t) => q.has(t))).map((s) => s.id)
-  const scored = entries(subjects, meId, day)
+  const scored = entries(subjects, meId, day, mission)
     .map((e, i) => ({ e, i, score: [...new Set(e.keys)].filter((k) => q.has(k)).length }))
     .filter((x) => x.score > 0)
     .sort((a, b) => b.score - a.score || a.i - b.i)

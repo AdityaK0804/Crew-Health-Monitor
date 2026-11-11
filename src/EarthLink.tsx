@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CheckCircle, Clock, PaperPlaneTilt } from '@phosphor-icons/react'
 import type { Message } from './api'
-import { delayMinutes } from './data/users'
+import { MISSIONS, linkDelay, sayDelay, type MissionId } from './data/missions'
 import { Button, EASE } from './ui'
 
 interface Props {
   side: 'ship' | 'earth'
   day: number
+  mission: MissionId
   messages: Message[]
   /** Server clock minus this device's clock, in ms. */
   skew: number
@@ -33,11 +34,11 @@ function Body({ m, open, onToggle }: { m: Message; open: boolean; onToggle: () =
   )
 }
 
-export default function EarthLink({ side, day, messages, skew, onSend }: Props) {
+export default function EarthLink({ side, day, mission, messages, skew, onSend }: Props) {
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [, tick] = useState(0)
-  const delay = delayMinutes(day)
+  const link = linkDelay(mission, day)
   const other = side === 'ship' ? 'Earth' : 'the ship'
 
   // Re-draw twice a second so the countdowns move.
@@ -68,11 +69,29 @@ export default function EarthLink({ side, day, messages, skew, onSend }: Props) 
       <aside className="h-fit rounded-2xl border border-line bg-panel p-5">
         <p className="text-sm text-muted">One-way signal delay today</p>
         <p className="mt-1 flex items-baseline gap-2">
-          <span className="font-mono text-4xl font-medium tabular-nums">{delay}</span>
-          <span className="text-muted">minutes</span>
+          <span className="font-mono text-4xl font-medium tabular-nums">{link.text.replace(/ (minutes|seconds|second)$/, '')}</span>
+          <span className="text-muted">{link.text.match(/(minutes|seconds|second)$/)?.[0]}</span>
         </p>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          A question and its answer take at least <span className="text-ink">{delay * 2} minutes</span>. The demo plays one minute of delay as one second.
+          {link.compressed ? (
+            <>
+              A question and its answer take at least <span className="text-ink">{link.minutes * 2} minutes</span>. The demo plays one minute of delay as one second.
+            </>
+          ) : (
+            'Shown at its real speed.'
+          )}{' '}
+          {MISSIONS[mission].note}
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-dim">
+          Delay from:{' '}
+          {MISSIONS[mission].delaySource.url ? (
+            <a href={MISSIONS[mission].delaySource.url} target="_blank" rel="noreferrer" className="underline decoration-line-strong underline-offset-4 hover:text-ink">
+              {MISSIONS[mission].delaySource.label}
+            </a>
+          ) : (
+            MISSIONS[mission].delaySource.label
+          )}
+          .
         </p>
         {side === 'ship' ? (
           <p className="mt-4 border-t border-line pt-4 text-sm leading-relaxed">
@@ -80,7 +99,7 @@ export default function EarthLink({ side, day, messages, skew, onSend }: Props) 
           </p>
         ) : (
           <p className="mt-4 border-t border-line pt-4 text-sm leading-relaxed">
-            You see only what the crew chose to send. By the time you read it, it is already {delay} minutes old.
+            You see only what the crew chose to send. By the time you read it, it is already {link.text} old.
           </p>
         )}
       </aside>
@@ -112,7 +131,7 @@ export default function EarthLink({ side, day, messages, skew, onSend }: Props) 
                   {mine && (
                     <p className={`mt-2 flex items-center gap-1.5 text-xs ${arrived ? 'text-muted' : 'text-check'}`}>
                       {arrived ? <CheckCircle size={14} weight="fill" /> : <Clock size={14} />}
-                      {arrived ? `Arrived at ${side === 'ship' ? 'Earth' : 'the ship'}` : `On its way. Arrives in ${left} s (${m.delay_min} min in real time)`}
+                      {arrived ? `Arrived at ${side === 'ship' ? 'Earth' : 'the ship'}` : `On its way. Arrives in ${left} s${m.delay_min >= 1 ? ` (${sayDelay(m.delay_min)} in real time)` : ''}`}
                     </p>
                   )}
                 </motion.article>

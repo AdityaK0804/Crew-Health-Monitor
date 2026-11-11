@@ -47,7 +47,7 @@ const MAX_ZOOM = 5
 
 const MAX_HOT = 6
 const TINT: Record<Level, [number, number, number]> = { green: [0.8, 0.82, 0.86], amber: [0.96, 0.65, 0.14], red: [1, 0.42, 0.45] }
-const MARKER: Record<Level, string> = { green: 'border-muted/70 bg-ground/60', amber: 'border-check bg-check', red: 'border-urgent bg-urgent' }
+const MARKER: Record<Level, string> = { green: 'border-ink/80 bg-ink/50', amber: 'border-check bg-check', red: 'border-urgent bg-urgent' }
 const RANK: Record<Level, number> = { green: 0, amber: 1, red: 2 }
 /** Labels that open to the left, so two markers close together do not cover each other. */
 const LABEL_LEFT = new Set(['sleep', 'onsd'])
@@ -219,7 +219,8 @@ function createStage(host: HTMLDivElement, markerOf: (id: string) => HTMLElement
   }
 
   loadAnatomy().then((b) => {
-    if (!b || disposed) return
+    if (disposed) return
+    if (!b) return onCredit('failed')
     bodies = b
     show()
   })
@@ -443,7 +444,7 @@ export default function BodyScan({ build, hotspots, activeId, focusId, onPick }:
           >
             {flag && <span className={`marker-ring absolute h-3.5 w-3.5 rounded-full border ${h.level === 'red' ? 'border-urgent' : 'border-check'}`} />}
             <span
-              className={`relative rounded-full border transition-transform duration-200 group-hover:scale-150 ${flag ? 'h-2.5 w-2.5' : 'h-1.5 w-1.5'} ${MARKER[h.level]} ${active ? 'scale-150 ring-2 ring-ink/70 ring-offset-2 ring-offset-ground' : ''}`}
+              className={`relative rounded-full border transition-transform duration-200 group-hover:scale-150 ${flag ? 'h-2.5 w-2.5' : 'h-2 w-2'} ${MARKER[h.level]} ${active ? 'scale-150 ring-2 ring-ink/70 ring-offset-2 ring-offset-ground' : ''}`}
             />
             <span
               className={`pointer-events-none absolute rounded-md border border-line bg-panel/95 px-2 py-1 text-xs whitespace-nowrap transition-opacity duration-200 ${LABEL_LEFT.has(h.id) ? 'right-9' : 'left-9'} ${flag || active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'} ${h.level === 'red' ? 'text-urgent' : h.level === 'amber' ? 'text-check' : 'text-muted'}`}
@@ -453,6 +454,11 @@ export default function BodyScan({ build, hotspots, activeId, focusId, onPick }:
           </button>
         )
       })}
+      {(credit === '' || credit === 'failed') && (
+        <p className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center px-8 text-center text-sm text-muted" role="status">
+          {credit === '' ? 'Loading the 3D body (13 MB)...' : 'The 3D body could not be loaded. The signals on the right still work.'}
+        </p>
+      )}
       <div className="absolute top-1/2 left-4 z-[3] flex -translate-y-1/2 flex-col gap-1.5">
         <button onClick={() => stage.current?.zoomBy(1.4)} aria-label="Zoom in" className="press flex h-11 w-11 items-center justify-center rounded-[10px] border border-line-strong bg-panel/90 hover:border-muted">
           <Plus size={18} />
@@ -479,7 +485,7 @@ export default function BodyScan({ build, hotspots, activeId, focusId, onPick }:
             </button>
           ))}
         </div>
-        {credit && <p className="pointer-events-none text-[11px] leading-snug text-dim">Drag to turn, pinch or scroll to zoom. Reference body, not a scan of this person: {credit}.</p>}
+        {credit && credit !== 'failed' && <p className="pointer-events-none text-[11px] leading-snug text-dim">Drag to turn, pinch or scroll to zoom. Reference body, not a scan of this person: {credit}.</p>}
       </div>
     </div>
   )

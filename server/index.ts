@@ -21,11 +21,12 @@ import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { DatabaseSync } from 'node:sqlite'
-import { reword, rewordEnabled } from '../api/reword.js'
+import { allowed, reword, rewordEnabled } from '../api/reword.js'
 import { CREW, MISSION_DAYS } from '../src/data/simulatedCrew.ts'
-import { DEMO_MS_PER_DELAY_MINUTE, DEMO_PIN, USERS, canSee, delayMinutes, type User } from '../src/data/users.ts'
+import { isMission, linkDelay } from '../src/data/missions.ts'
+import { DEMO_PIN, USERS, canSee, type User } from '../src/data/users.ts'
 import { buildDay, flagged, keyOf, type CheckIns } from '../src/model.ts'
-import { validateReading } from '../src/validate.ts'
+import { MAX_IMAGE_CHARS, validateReading } from '../src/validate.ts'
 
 const PORT = Number(process.env.API_PORT ?? 8787)
 mkdirSync('data', { recursive: true })
@@ -36,7 +37,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY AUTOINCREMENT, crew_id TEXT NOT NULL, day INTEGER NOT NULL, text TEXT NOT NULL, at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS tasks_done (user_id TEXT NOT NULL, day INTEGER NOT NULL, key TEXT NOT NULL, PRIMARY KEY (user_id, day, key));
-  CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, from_user TEXT NOT NULL, side TEXT NOT NULL, kind TEXT NOT NULL, body TEXT NOT NULL, day INTEGER NOT NULL, delay_min INTEGER NOT NULL, sent_at INTEGER NOT NULL, deliver_at INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, from_user TEXT NOT NULL, side TEXT NOT NULL, kind TEXT NOT NULL, body TEXT NOT NULL, day INTEGER NOT NULL, delay_min REAL NOT NULL, sent_at INTEGER NOT NULL, deliver_at INTEGER NOT NULL);
   CREATE TABLE IF NOT EXISTS emergencies (id INTEGER PRIMARY KEY AUTOINCREMENT, scenario TEXT NOT NULL, patient TEXT NOT NULL, by_user TEXT NOT NULL, day INTEGER NOT NULL, started_at TEXT NOT NULL, steps TEXT NOT NULL);
 `)
 // Older database files from earlier sessions lack these columns.
@@ -67,8 +68,9 @@ function allCheckIns(): CheckIns {
 const logEvent = (kind: string, detail: string, crewId: string | null) =>
   db.prepare('INSERT INTO events (at, kind, detail, crew_id) VALUES (?, ?, ?, ?)').run(nowIso(), kind, detail, crewId)
 
-function sendMessage(user: User, kind: string, body: string, day: number) {
-  const delay = delayMinutes(day)
+function sendMessage(user: User, kind: string, body: string, day: number, mission: unknown) {
+  const link = linkDelay(isMission(mission) ? mission : 'mars', day)
+  const delay = link.minutes
   const sent = Date.now()
   db.prepare('INSERT INTO messages (from_user, side, kind, body, day, delay_min, sent_at, deliver_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(
     user.id,
@@ -78,7 +80,7 @@ function sendMessage(user: User, kind: string, body: string, day: number) {
     day,
     delay,
     sent,
-    sent + delay * DEMO_MS_PER_DELAY_MINUTE,
+    sent + link.demoMs,
   )
 }
 
@@ -116,12 +118,12 @@ function send(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body))
 }
 
-function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+function readJson(req: IncomingMessage, maxChars = 20_000): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
     let raw = ''
     req.on('data', (chunk) => {
       raw += chunk
-      if (raw.length > 20_000) reject(new Error('too large'))
+      if (raw.length > maxChars) reject(new Error('too large'))
     })
     req.on('end', () => {
       try {
@@ -154,6 +156,7 @@ const server = createServer(async (req, res) => {
     if (method === 'GET' && path === '/api/users') return send(res, 200, { users: USERS })
     if (method === 'GET' && path === '/api/reword') return send(res, 200, { enabled: rewordEnabled() })
     if (method === 'POST' && path === '/api/reword') {
+      if (!allowed(req.socket.remoteAddress ?? 'local')) return send(res, 429, { error: 'Too many rewording requests. Try again in a minute.' })
       const body = await readJson(req)
       const r = await reword(body.question, body.text)
       return r.ok ? send(res, 200, { text: r.text }) : send(res, r.status, { error: r.error })
@@ -182,7 +185,7 @@ const server = createServer(async (req, res) => {
       const body = await readJson(req)
       const msg = text(body.body, 4000)
       if (!msg || !validDay(body.day)) return send(res, 400, { error: 'Write a message first.' })
-      sendMessage(user, body.kind === 'report' ? 'report' : 'message', msg, body.day)
+      sendMessage(user, body.kind === 'report' ? 'report' : 'message', msg, body.day, body.mission)
       return send(res, 200, stateFor(user))
     }
 
@@ -195,7 +198,8 @@ const server = createServer(async (req, res) => {
       if (!crew) return send(res, 404, { error: 'Unknown crew member.' })
       if (!canSee(user, crew.id)) return send(res, 403, { error: 'You can only log your own check-in.' })
       if (!validDay(day)) return send(res, 400, { error: `Day must be 1 to ${MISSION_DAYS}.` })
-      const v = validateReading(await readJson(req))
+      // A check-in may carry one compressed image, so this route accepts a larger body than the others.
+      const v = validateReading(await readJson(req, MAX_IMAGE_CHARS + 20_000))
       if (!v.ok) return send(res, 400, { error: v.error })
       db.prepare(
         'INSERT INTO checkins (crew_id, day, reading, updated_at, by_user) VALUES (?, ?, ?, ?, ?) ON CONFLICT (crew_id, day) DO UPDATE SET reading = excluded.reading, updated_at = excluded.updated_at, by_user = excluded.by_user',
@@ -240,7 +244,7 @@ const server = createServer(async (req, res) => {
       db.prepare('INSERT INTO emergencies (scenario, patient, by_user, day, started_at, steps) VALUES (?, ?, ?, ?, ?, ?)').run(scenario, patient.id, user.id, body.day, body.startedAt.slice(0, 40), JSON.stringify(clean))
       logEvent('emergency', `Emergency record: ${scenario}, patient ${patient.name}`, null)
       const lines = clean.map((s) => `  +${Math.floor(s.atSeconds / 60)}:${String(Math.round(s.atSeconds % 60)).padStart(2, '0')}  ${s.title}`)
-      sendMessage(user, 'emergency', `EMERGENCY RECORD (practice, simulated)\n${scenario}\nPatient: ${patient.name}. Run by: ${user.name}. Mission day ${body.day}.\nSteps done:\n${lines.join('\n')}`, body.day)
+      sendMessage(user, 'emergency', `EMERGENCY RECORD (practice, simulated)\n${scenario}\nPatient: ${patient.name}. Run by: ${user.name}. Mission day ${body.day}.\nSteps done:\n${lines.join('\n')}`, body.day, body.mission)
       return send(res, 200, stateFor(user))
     }
 

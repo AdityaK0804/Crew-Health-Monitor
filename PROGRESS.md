@@ -111,3 +111,21 @@ marked "demo only" are our wording. The database keeps test messages from develo
 - First load split: 3D view loads only when Crew health opens (main file 485 kB, was about 1 MB).
 - 3D performance fixes, optional Gemini rewording (`api/reword.js`, off without a key).
 - DEMO_SCRIPT.md added.
+
+## Session 9 (2026-11-11)
+- Reviewed outside feedback (Sonnet, Gemini). Applied Sonnet's patch: white cells, vitamin D and body mass signals, and image attachment on check-ins.
+- Replaced guessed white cell ranges with the real lab ranges and pre-flight values from NASA OSD-569.
+- Added body markers, Ask words and tests for the new signals (21 rule tests).
+- Trend chart: up to three signals since launch, under the crew health screen.
+- Verdict chips now say Earth or Space on each chip. Normal body markers are easier to see. Roles no longer cut off.
+- 3D body shows a loading message and a failure message. Rewording endpoint is rate limited.
+- Not done: mission selector (ISS / Moon / Mars), images sent to Earth.
+- ADNI brain scans (Alzheimer's study) were offered as data. Not used: wrong population, and its licence does not allow republishing.
+
+## Session 10 (2026-11-11)
+- Mission setting: space station, Moon surface, Mars transit (`src/data/missions.ts`, `src/MissionMenu.tsx`). Changes the Earth link delay and the radiation rate, each with a source. 23 rule tests.
+- Custom setting menu instead of the browser dropdown. Header kept to one row.
+
+## Session 11 (2026-11-11)
+- Station radiation rate now rests on three peer-reviewed measurements; the Moon rate is confirmed as the only surface measurement. Station delay sourced to NASA.
+- Moon gravity: the simulation applies 60% of the weightless fluid shift (demo parameter from a partial-gravity study), and gravity-related signals carry a note on the Moon. 24 rule tests.

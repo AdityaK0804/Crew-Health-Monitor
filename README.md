@@ -50,7 +50,7 @@ Each signal shows what to do next first, then the reason, then the Earth and spa
 
 ### Signals
 
-Ten crew signals and two cabin signals, each tagged with one of NASA's five hazards of spaceflight:
+Thirteen crew signals and two cabin signals, each tagged with one of NASA's five hazards of spaceflight:
 
 | Signal | Earth and space rules differ? | Rule source |
 |---|---|---|
@@ -59,13 +59,40 @@ Ten crew signals and two cabin signals, each tagged with one of NASA's five haza
 | Neck vein blood flow | Explanation differs | Published |
 | Headache with cabin CO2 | Yes | Published |
 | Urine output (kidney stones) | Yes | Published, to be re-checked |
+| White blood cells and lymphocytes (immune) | Yes | Lab ranges from NASA OSD-569; in-flight rise published; action level is a demo parameter |
+| Vitamin D (nutrition) | Yes | NASA protocol and flight studies, to be re-checked |
 | Resistance exercise (bone loss) | Yes | Bone loss published, weekly cut-off is a demo parameter |
 | Cabin CO2 | Yes | Published |
 | Radiation dose | Yes | Published |
 | Sleep | No | Demo parameter |
 | Oxygen level and heart rate | No | Demo parameter |
 | Mood | No | Demo parameter |
+| Body mass (food intake) | No | Demo parameter |
 | Blood pressure, temperature, blood sugar | No | Demo parameter (ordinary Earth limits) |
+
+### Trends since launch
+
+A larger chart of any three signals over the whole mission so far, against the crew member's pre-flight value.
+
+![Trend chart under the crew health screen](docs/trends.png)
+
+### Image attachment
+
+A crew member can attach a photo or ultrasound image to a check-in. It is shrunk in the browser, stored with the check-in and shown with the eye signal. The app does not analyse the image and says so on screen. It is not yet sent to Earth with the report.
+
+### Mission setting
+
+Choose space station, Moon surface or Mars transit. The setting changes the signal delay to Earth, how fast radiation dose builds up, and, on the Moon, how strong the fluid shift toward the head is.
+
+| Setting | One-way message delay | Radiation (dose equivalent) | Gravity |
+|---|---|---|---|
+| Space station | under 1 second (NASA) | 0.73 mSv a day (three peer-reviewed ISS measurements, 0.6 to 0.8) | Weightless |
+| Moon surface | 1.3 seconds (distance divided by light speed) | 1.37 mSv a day (Chang'E-4, the only surface measurement so far) | One sixth of Earth |
+| Mars transit | 4 to 22 minutes, by mission day | 1.8 mSv a day (Curiosity, measured in cruise) | Weightless |
+
+**Moon gravity.** The space rules come from weightless missions. A parabolic-flight study found the neck vein widens step by step as gravity falls, but it only went down to a quarter of Earth gravity, and nobody has measured a long stay on the Moon. So in the Moon setting the simulation applies 60% of the weightless fluid shift, labelled as a demo parameter, and each gravity-related signal carries a note saying its rule was written for weightlessness.
+
+![Mission setting menu](docs/mission-menu.png)
 
 ### Body systems
 
@@ -177,6 +204,8 @@ This is a prototype. It is not deployable, and we do not claim it is. A real sys
 - Encryption of data at rest and in transit.
 - Clinical validation of every threshold, including the ones that have a published source.
 - Peripheral nerves and a matched female vessel model, which the free anatomical datasets do not include.
+- Images sent to Earth with the report, and any reading of them. Today an image is only stored and shown.
+- Measured data for long stays in Moon gravity. The 60% fluid shift is an assumption, and bone loss, mission length and crew routines do not change with the setting.
 
 ## Optional: Gemini rewording
 
