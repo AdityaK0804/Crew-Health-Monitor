@@ -206,10 +206,10 @@ export const SOURCES: Record<string, Source> = {
   },
   BONE_LOSS: {
     id: 'BONE_LOSS',
-    title: 'Bone loss in long spaceflight: about 1 to 1.5% a month',
-    url: 'https://link.springer.com/10.1038/s41526-023-00256-5',
-    says: 'Before modern resistance devices, crews on 4 to 6 month missions lost about 1 to 1.5% of bone density a month at the hip and spine. Resistance exercise reduces the loss but does not remove it.',
-    status: 'partial',
+    title: 'NASA Human Research Program: Risk of Spaceflight-Induced Bone Changes',
+    url: 'https://www.nasa.gov/reference/risk-of-spaceflight-induced-bone-changes/',
+    says: 'Before modern resistance devices, crews on 4 to 6 month missions lost about 1 to 1.5% of bone density a month at the hip and spine. Resistance exercise reduces the loss but does not remove it. NASA states the same figure and notes that bone is scanned only before and after flight.',
+    status: 'verified',
   },
   EXERCISE_PLAN: {
     id: 'EXERCISE_PLAN',

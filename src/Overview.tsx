@@ -6,7 +6,7 @@ import TrendChart from './TrendChart'
 import type { ActivityEvent } from './api'
 import { regionOf } from './body/sdf'
 import { CREW, MISSION_DAYS, cabinOn } from './data/simulatedCrew'
-import { GUIDE } from './data/signalGuide'
+import { GUIDE, NASA_RISK, NASA_STUDY } from './data/signalGuide'
 import { SOURCES } from './data/sources'
 import { MISSIONS, type MissionId } from './data/missions'
 import type { User } from './data/users'
@@ -400,6 +400,24 @@ function SignalRow({ index, f, compact, mode, earth, space, info, trend, attachm
                   <p className="mt-1.5 text-muted">
                     <span className="text-ink">How to measure:</span> {GUIDE[f.id].how}
                   </p>
+                  {NASA_RISK[f.id] && (
+                    <p className="mt-1.5 text-muted">
+                      <span className="text-ink">NASA risk:</span>{' '}
+                      <a href={NASA_RISK[f.id].url} target="_blank" rel="noreferrer" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
+                        {NASA_RISK[f.id].name}
+                      </a>
+                      {NASA_STUDY[f.id] && (
+                        <>
+                          . NASA is studying this now:{' '}
+                          <a href={NASA_STUDY[f.id].url} target="_blank" rel="noreferrer" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
+                            {NASA_STUDY[f.id].name}
+                          </a>{' '}
+                          ({NASA_STUDY[f.id].about})
+                        </>
+                      )}
+                      .
+                    </p>
+                  )}
                   {GUIDE[f.id].hazard === 'Gravity changes' && MISSIONS[mission].gravity > 0 && (
                     <p className="mt-2 rounded-lg bg-check-bg px-3 py-2 text-check">
                       On the Moon: gravity is one sixth of Earth's. These rules come from weightless missions. Fluid should move toward the head less than in weightlessness, but nobody has measured a long stay in Moon gravity.{' '}

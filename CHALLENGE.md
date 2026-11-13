@@ -20,6 +20,10 @@ This is our own summary of what the page asks for, and where the app answers it.
 | What actions can prevent a critical condition? | Next steps, Today task list, stale-data warnings | Covered |
 | Example: a human figure where each body part is clickable and shows its status | The 3D body with clickable markers | Covered |
 
+## Required resources
+
+The challenge's Resources tab lists five pages (two from NASA's Human Research Program beyond the hazards page, and two from the Canadian Space Agency). All five were read on 2026-11-13. The README section "NASA and partner resources used" says where each appears in the app. In short: hazards and NASA risk names are shown on every signal, current NASA studies are named where they match, and two facts (bone loss rate, share of astronauts with eye swelling) come straight from NASA's risk pages.
+
 ## Optional considerations
 
 | Consideration | Status |

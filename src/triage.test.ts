@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { linkDelay } from './data/missions'
+import { GUIDE, NASA_RISK, NASA_STUDY } from './data/signalGuide'
 import { SOURCES } from './data/sources'
 import { CREW, MISSION_DAYS, cabinOn, readingOn } from './data/simulatedCrew'
 import { assessCabin, assessCrew, compareModes, worstLevel, type CabinReading, type CrewBaseline, type CrewReading } from './triage'
@@ -175,6 +176,14 @@ describe('shared rules and helpers', () => {
     const space = assessCrew(r, baseline, stuffy, 'space')
     expect(worstLevel(earth)).toBe('amber')
     expect(compareModes(earth, space)).toEqual({ falseAlarms: 1, missed: 1 })
+  })
+})
+
+describe('NASA resources', () => {
+  it('every signal has a plain-language guide, and risk links point to nasa.gov', () => {
+    const ids = new Set([...assessCabin(cabinOn(60), 'space'), ...CREW.flatMap((c) => assessCrew({ ...readingOn(c, 60), headache: true }, c.baseline, cabinOn(60), 'space'))].map((f) => f.id))
+    for (const id of ids) expect(GUIDE[id], id).toBeDefined()
+    for (const r of [...Object.values(NASA_RISK), ...Object.values(NASA_STUDY)]) expect(r.url.startsWith('https://www.nasa.gov/reference/')).toBe(true)
   })
 })
 

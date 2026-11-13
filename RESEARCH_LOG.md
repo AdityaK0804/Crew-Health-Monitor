@@ -75,6 +75,18 @@ Not used from outside suggestions, because no source was given: a lymphocyte "wa
 | GRAVITY_PARTIAL | Fluid shift depends on gravity level | Lee et al., Frontiers in Physiology 2020, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7399573/ | Neck vein area 12 square mm seated at Earth gravity, 24 at 0.75, 34 at 0.5, 68 at 0.25, 103 lying flat. Nine subjects, seconds-long parabolas. Lunar gravity not tested. How much gravity is enough is an open question | Medium (abstract level) | Used as the basis for the Moon note |
 | GRAVITY_DEMO | Moon applies 60% of the weightless fluid shift | our own extrapolation from the row above | (68 - 12) / (103 - 12) is about 0.6 at a quarter of Earth gravity. Moon gravity is lower, so the true figure may be higher | Low | Demo parameter, labelled on screen |
 
+### Added 2026-11-13 (the challenge's required resources)
+
+| Id | Claim | Source | What the source says | Confidence | Status |
+|---|---|---|---|---|---|
+| BONE_LOSS | Bone loss 1 to 1.5% a month | NASA HRP, https://www.nasa.gov/reference/risk-of-spaceflight-induced-bone-changes/ | 1% to 1.5% of density a month at spine and hips on four-to-six-month missions. Scans before and after flight only. Bisphosphonates may help. Height can rise by up to 3% | High | Used. Upgraded to verified |
+| - | Eye swelling in about 70% of station astronauts | NASA HRP SANS page | "Approximately 70 percent" get some swelling at the back of the eye. Fundoscopy is the exam named. No thresholds | High | Used in the eye signal's explanation |
+| - | 16 sunrises and sunsets a day | NASA HRP sleep page | Disrupts the sleep-wake cycle. LED lighting is the countermeasure. No sleep hours given | High | Used in the sleep explanation. Sleep cut-off stays a demo parameter |
+| - | Immune symptoms seen on the station | NASA HRP immune page | Cold sores, rashes, unusual allergies, reactivated viruses. Blood, saliva and urine samples. No numbers | High | Supports the white cell signal's wording |
+| - | Journaling as a behavioural countermeasure | NASA HRP behavioural page | Regular journal, fresh vegetables, windows, privacy. No questionnaires named | High | Used in the mood explanation |
+| - | Neutrons about 30% of radiation on the ISS | Canadian Space Agency, 2026-02-26 | CANS neutron instrument, 5.5 million dollar contract | High | Used in the radiation explanation |
+| - | Thresholds for any signal | all of the above | None of the required resources gives a numeric threshold or a dataset | - | Demo parameters unchanged |
+
 ## 2. Data we can really use
 
 | Data | Where | What it is | Use |

@@ -129,3 +129,8 @@ marked "demo only" are our wording. The database keeps test messages from develo
 ## Session 11 (2026-11-11)
 - Station radiation rate now rests on three peer-reviewed measurements; the Moon rate is confirmed as the only surface measurement. Station delay sourced to NASA.
 - Moon gravity: the simulation applies 60% of the weightless fluid shift (demo parameter from a partial-gravity study), and gravity-related signals carry a note on the Moon. 24 rule tests.
+
+## Session 12 (2026-11-13)
+- Read the challenge's required resources (NASA hazards, risks, ongoing research; two Canadian Space Agency pages).
+- Every signal now links to its official NASA risk, and names the matching current NASA study where one exists (`NASA_RISK`, `NASA_STUDY` in `src/data/signalGuide.ts`).
+- Bone loss source upgraded to NASA's own page. Four facts from the resources added to the explanations. 25 rule tests.

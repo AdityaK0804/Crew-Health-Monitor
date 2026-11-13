@@ -30,6 +30,20 @@ Any threshold without a published source is labelled "Demo parameter" on screen.
 
 How this maps to the challenge text, line by line, is in [CHALLENGE.md](CHALLENGE.md).
 
+## NASA and partner resources used
+
+The challenge lists these resources. This is where each one shows up in the app.
+
+| Resource | How we use it |
+|---|---|
+| [NASA: five hazards of human spaceflight](https://www.nasa.gov/hrp/hazards/) | Every signal is tagged with its hazard |
+| [NASA: risks of human spaceflight](https://www.nasa.gov/hrp/risks/) | Every signal links to its official NASA risk page (for example SANS, bone changes, food and nutrition, immune responses, sleep, behavioral changes, cardiovascular adaptations, radiation-induced cancers). Facts taken from those pages: bone loss of 1 to 1.5% a month, and about 70 percent of station astronauts with some swelling at the back of the eye |
+| [NASA: ongoing research](https://www.nasa.gov/hrp/ongoing-hrp-research/) | Signals name the current NASA study on the same question: Venous Haemostasis (neck vein), Thigh Cuff (eyes), ARCHeR (sleep), Immune Biomarkers (white cells), Zero T2 (exercise) |
+| [Canadian Space Agency: monitoring radiation](https://www.asc-csa.gc.ca/eng/news/articles/2026/2026-02-26-monitoring-radiation-astronaut-health.asp) | The radiation explanation notes that neutrons make up about 30% of the dose on the station |
+| [Canadian Space Agency: why science in space](https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp) | The mission settings follow its list of deep-space challenges: more weightlessness, more radiation, longer isolation, longer delays, less help from Earth |
+
+These pages give no numeric thresholds, so they do not replace our "Demo parameter" labels. NASA risks with no signal in this app: balance and coordination, teamwork, low oxygen, decompression sickness, spacewalk injury, and microbes. Kidney stones are a signal here but are not on NASA's list of 17 risks.
+
 ## Why rules and not a prediction model
 
 This is a deliberate choice, not a missing feature.

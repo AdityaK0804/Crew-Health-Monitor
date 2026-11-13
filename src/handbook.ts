@@ -3,7 +3,7 @@
 // If nothing matches, it says so. Works with no network.
 
 import { SCENARIOS } from './data/emergency.ts'
-import { GUIDE } from './data/signalGuide.ts'
+import { GUIDE, NASA_RISK } from './data/signalGuide.ts'
 import { SOURCES } from './data/sources.ts'
 import { MISSIONS, linkDelay, type MissionId } from './data/missions.ts'
 import type { Subject } from './model.ts'
@@ -57,8 +57,12 @@ function entries(subjects: Subject[], meId: string, day: number, mission: Missio
             `Earth rules: ${earth.level === 'green' ? 'normal' : 'flagged'}. ${earth.why}`,
             `Next: ${space.next}`,
             ...(GUIDE[space.id] ? [`How it is measured: ${GUIDE[space.id].how}`] : []),
+            ...(NASA_RISK[space.id] ? [`NASA lists this under: Risk of ${NASA_RISK[space.id].name}.`] : []),
           ],
-          sources: space.sourceIds.map((id) => ({ label: SOURCES[id].status === 'demo' ? 'Demo parameter, no published source' : SOURCES[id].title, url: SOURCES[id].url })),
+          sources: [
+            ...space.sourceIds.map((id) => ({ label: SOURCES[id].status === 'demo' ? 'Demo parameter, no published source' : SOURCES[id].title, url: SOURCES[id].url })),
+            ...(NASA_RISK[space.id] ? [{ label: `NASA risk page: ${NASA_RISK[space.id].name}`, url: NASA_RISK[space.id].url }] : []),
+          ],
         }),
       })
     }
