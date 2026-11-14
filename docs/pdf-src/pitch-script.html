@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crew Health Monitor: video script and timeline</title>
+<link rel="stylesheet" href="print.css">
+<style>
+@page { size: A4 landscape; margin: 0; }
+.page { width: 297mm; height: 210mm; }
+.bar { display: flex; height: 16mm; border-radius: 3mm; overflow: hidden; border: 0.35mm solid #232327; }
+.seg { display: flex; flex-direction: column; justify-content: center; padding: 0 3mm; border-right: 0.35mm solid #09090B; background: #19191C; }
+.seg.demo { background: #EDEDEF; }
+.seg.demo p, .seg.demo .tag { color: #09090B; }
+.seg p { font-size: 8.5pt; color: #EDEDEF; font-weight: 600; line-height: 1.2; }
+.ticks { display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 7.5pt; color: #8B8B94; }
+td.time { font-family: 'Geist Mono', monospace; color: #EDEDEF; white-space: nowrap; }
+td.say { color: #EDEDEF; }
+</style>
+</head>
+<body>
+
+<!-- 1. Timeline -->
+<div class="page">
+  <p class="tag">Crew Health Monitor · video pitch</p>
+  <h1>Three minutes, seven slides</h1>
+  <p class="lead" style="max-width:220mm">One person speaks. Slides carry the argument, the live app carries the proof. White blocks below are live demo; the rest is slides.</p>
+  <div class="stack" style="gap:2mm; margin-top:4mm">
+    <div class="bar">
+      <div class="seg" style="flex:15"><span class="tag">1</span><p>Cover</p></div>
+      <div class="seg" style="flex:20"><span class="tag">2</span><p>Problem</p></div>
+      <div class="seg" style="flex:20"><span class="tag">3</span><p>Two failures</p></div>
+      <div class="seg demo" style="flex:40"><span class="tag">4 · live</span><p>Crew health</p></div>
+      <div class="seg demo" style="flex:40"><span class="tag">5 · live</span><p>A day on board</p></div>
+      <div class="seg" style="flex:30"><span class="tag">6</span><p>Trust</p></div>
+      <div class="seg" style="flex:15"><span class="tag">7</span><p>Close</p></div>
+    </div>
+    <div class="ticks" style="position:relative; justify-content:flex-start">
+      <span style="flex:15">0:00</span><span style="flex:20">0:15</span><span style="flex:20">0:35</span><span style="flex:40">0:55</span><span style="flex:40">1:35</span><span style="flex:30">2:15</span><span style="flex:15">2:45</span>
+      <span style="position:absolute; right:0">3:00</span>
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:6mm">
+    <div class="card"><p class="tag">Open with honesty</p><p class="small">The first sentence says everything is simulated. Judges trust the rest more when they hear it from you first.</p></div>
+    <div class="card"><p class="tag">Two beats to remember</p><p class="small">The hematocrit false alarm, and the concern Earth rules miss. If a judge remembers only these, the idea has landed.</p></div>
+    <div class="card"><p class="tag">End on the choice</p><p class="small">Rules instead of a prediction model was deliberate. Say why in one breath, then the closing line.</p></div>
+  </div>
+  <div class="card warn" style="margin-top:auto"><p><strong>Before you record.</strong> Run the app locally with <span class="mono">npm run dev</span> so the real server is behind it. Open two browser tabs: one entered as M. Chen (medical officer), one as Flight surgeon. Set the mission day to 60 and the setting to Mars transit.</p></div>
+  <div class="foot"><span>Video script and timeline</span><span>1</span></div>
+</div>
+
+<!-- 2. Script part 1 -->
+<div class="page alt">
+  <p class="tag">Script, part 1</p>
+  <h2>What to show and what to say</h2>
+  <table>
+    <tr><th style="width:9%">Time</th><th style="width:27%">On screen</th><th>Say</th></tr>
+    <tr><td class="time">0:00<br>0:15</td><td><strong>Slide 1, cover.</strong></td><td class="say">“This is Crew Health Monitor. Before anything else: everything you will see is simulated. The crew, the readings, the accounts. Real astronaut data is not public. What is real is the rules, and each one shows the paper it comes from.”</td></tr>
+    <tr><td class="time">0:15<br>0:35</td><td><strong>Slide 2, the problem.</strong> Three numbers.</td><td class="say">“On the way to Mars a message can take 22 minutes each way. There may be no doctor on board. And the body changes: most station astronauts get swelling at the back of the eye, and bone is lost every month. The crew has to notice and act on their own.”</td></tr>
+    <tr><td class="time">0:35<br>0:55</td><td><strong>Slide 3, two failures.</strong> Three cards.</td><td class="say">“The normal ranges on an Earth lab report fail in two ways. They raise false alarms: hematocrit rises in flight, and Earth rules call it dehydration. And they miss real problems: carbon dioxide that passes Earth limits still gives crews headaches, and a urine volume that is fine on Earth is a kidney stone risk in space.”</td></tr>
+    <tr><td class="time">0:55<br>1:35</td><td><strong>Slide 4, then the live app.</strong> Crew health tab. Select E. Vance and switch Earth-standard, then Space-adapted. Select A. Rivera. Click the Neck vein marker. Point at “Do this next”.</td><td class="say">“We check the same readings with two rule sets and show both verdicts. Earth rules flag her hematocrit. Space rules explain it is expected, and here is the study. Now the flight engineer. The camera goes to the problem: blood flow in his neck vein has stalled. Six of eleven station crew showed this in one study, and one got a clot. The screen tells a non-doctor what to do first, then why, and how the measurement is taken.”</td></tr>
+  </table>
+  <div class="foot"><span>Crew Health Monitor</span><span>2</span></div>
+</div>
+
+<!-- 3. Script part 2 -->
+<div class="page">
+  <p class="tag">Script, part 2</p>
+  <h2>What to show and what to say</h2>
+  <table>
+    <tr><th style="width:9%">Time</th><th style="width:27%">On screen</th><th>Say</th></tr>
+    <tr><td class="time">1:35<br>2:15</td><td><strong>Slide 5, then the live app.</strong> Today tab. Ask tab: click “Am I at risk of kidney stones?”. Crew health: press “Send report to Earth”. Earth link: show the countdown. Press Emergency for five seconds.</td><td class="say">“This is what a crew member sees each day: what to measure and what to re-check. The Ask tab has no AI model. It only answers from the rules and today’s readings, and it says so when it does not know. A report to Earth takes sixteen minutes on this mission day, and Earth sees only what the crew sends. And if someone collapses: large timed steps, each marked as published guidance or demo wording.”</td></tr>
+    <tr><td class="time">2:15<br>2:45</td><td><strong>Slide 6, trust.</strong> Real, simulated, by choice.</td><td class="say">“To be clear about what is real. The rules, their sources, the lab ranges and the body models are real. The crew and every reading are simulated, and any threshold we could not source says so on screen. We chose rules, not a prediction model, on purpose: there is no public in-flight data to train on, the tool has to run on board with no connection, and a crew far from help needs to see why a flag was raised.”</td></tr>
+    <tr><td class="time">2:45<br>3:00</td><td><strong>Slide 7, close.</strong> Links.</td><td class="say">“This is a prototype, not a deployable system. To be real it needs confirmed sources, real devices and clinical validation. The same idea helps on Earth, anywhere a non-doctor has to decide before help arrives. Earth rules for Earth, space rules for space. Thank you.”</td></tr>
+  </table>
+  <div class="grid2" style="margin-top:auto">
+    <div class="card"><p class="tag">If you run long</p><p class="small">Cut the Emergency beat first, then the Today tab. Never cut the opening disclosure or the hematocrit toggle.</p></div>
+    <div class="card"><p class="tag">Word count</p><p class="small">The script is about 400 words, which is close to three minutes at a calm pace. Rehearse it twice with a timer before recording.</p></div>
+  </div>
+  <div class="foot"><span>Crew Health Monitor</span><span>3</span></div>
+</div>
+
+<!-- 4. Questions -->
+<div class="page alt">
+  <p class="tag">After the video</p>
+  <h2>Questions a judge may ask</h2>
+  <div class="grid2">
+    <div class="card"><h3>Why no machine learning?</h3><p class="small">No public in-flight data exists to train on, and a crew far from help needs to see why a flag was raised. Rules with sources can be audited. A model’s score cannot.</p></div>
+    <div class="card"><h3>Is the privacy real?</h3><p class="small">In a local run, yes: the server refuses requests outside your role. The public demo link has no server, so roles are for show there, and the app says so in a banner.</p></div>
+    <div class="card"><h3>Is any of the data real?</h3><p class="small">The lab ranges and pre-flight blood values come from NASA’s open data for the Inspiration4 crew. The radiation rates are measured values. Every day-by-day reading is simulated.</p></div>
+    <div class="card"><h3>How do you know the thresholds are right?</h3><p class="small">Each one links to its source. Where we found none, the screen says “Demo parameter”. Several sources were read as abstracts and are marked for a full check.</p></div>
+    <div class="card"><h3>What about the Moon?</h3><p class="small">The delay and radiation rate are sourced. The effect of Moon gravity on the body has never been measured over a long stay, so the app applies an assumption and labels it.</p></div>
+    <div class="card"><h3>What would it take to be real?</h3><p class="small">Real device data, the agency’s identity system, encryption, and clinical validation of every rule by flight surgeons.</p></div>
+  </div>
+  <div class="card warn" style="margin-top:auto"><p><strong>Still to fill in:</strong> your team name and members on slide 7, and a check of the Space Apps rules on disclosing AI tools and on work done before the event.</p></div>
+  <div class="foot"><span>Crew Health Monitor</span><span>4</span></div>
+</div>
+
+</body>
+</html>

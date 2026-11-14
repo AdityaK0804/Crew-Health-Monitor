@@ -1,0 +1,53 @@
+/* Shared look for the PDFs. Same palette as the app: near-black, off-white, amber only for attention. */
+@font-face { font-family: 'Geist'; src: url('../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Mono'; src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { background: #09090B; color: #EDEDEF; font-family: 'Geist', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; }
+
+.page { position: relative; background: #09090B; padding: 16mm 16mm 18mm; break-after: page; overflow: hidden; display: flex; flex-direction: column; gap: 6mm; }
+.page:last-child { break-after: auto; }
+.page.alt { background: #111113; }
+
+h1 { font-size: 34pt; line-height: 1.05; letter-spacing: -0.02em; font-weight: 600; }
+h2 { font-size: 20pt; line-height: 1.15; letter-spacing: -0.01em; font-weight: 600; }
+h3 { font-size: 11.5pt; font-weight: 600; line-height: 1.25; }
+p { color: #C4C4CC; }
+strong { color: #EDEDEF; font-weight: 600; }
+a { color: #EDEDEF; text-decoration: underline; text-decoration-color: #3A3A41; text-underline-offset: 2px; }
+
+.lead { font-size: 13pt; line-height: 1.4; color: #EDEDEF; }
+.muted { color: #A1A1AA; }
+.small { font-size: 8.5pt; color: #A1A1AA; line-height: 1.45; }
+.mono { font-family: 'Geist Mono', 'Courier New', monospace; }
+.tag { font-family: 'Geist Mono', 'Courier New', monospace; font-size: 7.5pt; letter-spacing: 0.14em; color: #A1A1AA; text-transform: uppercase; }
+.amber { color: #F5A524; }
+
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5mm; }
+.stack { display: flex; flex-direction: column; gap: 2.5mm; }
+.grow { flex: 1; }
+
+.card { background: #111113; border: 0.35mm solid #232327; border-radius: 3.5mm; padding: 5mm; display: flex; flex-direction: column; gap: 2mm; }
+.page.alt .card { background: #09090B; }
+.card.warn { border-color: #F5A524; }
+
+.big { font-family: 'Geist Mono', 'Courier New', monospace; font-size: 26pt; font-weight: 500; line-height: 1; color: #EDEDEF; letter-spacing: -0.02em; }
+
+.shot { width: 100%; border: 0.35mm solid #232327; border-radius: 3mm; display: block; }
+figure { display: flex; flex-direction: column; gap: 2mm; }
+figcaption { font-size: 8.5pt; color: #A1A1AA; line-height: 1.4; }
+figcaption strong { color: #EDEDEF; }
+
+.chip { display: inline-block; font-size: 8pt; font-weight: 600; padding: 0.8mm 2.4mm; border-radius: 1.6mm; }
+.chip.check { background: #2E2209; color: #F5A524; }
+.chip.ok { border: 0.3mm solid #232327; color: #A1A1AA; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+th { text-align: left; font-weight: 600; color: #A1A1AA; font-size: 8pt; padding: 2mm 2.5mm; border-bottom: 0.35mm solid #3A3A41; }
+td { padding: 2mm 2.5mm; border-bottom: 0.3mm solid #1A1A1E; color: #C4C4CC; vertical-align: top; }
+td strong { color: #EDEDEF; }
+
+.foot { position: absolute; left: 16mm; right: 16mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 7.5pt; color: #8B8B94; }
+ul { padding-left: 4.5mm; color: #C4C4CC; }
+li { margin-bottom: 1.2mm; }

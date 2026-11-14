@@ -1,6 +1,6 @@
 # Three-minute demo script
 
-Run it locally for the demo (`npm run dev`) so the real server is behind it. Have two browser tabs ready: one signed in as **M. Chen** (medical officer), one as **Flight surgeon**. PIN `2026`.
+Run it locally for the demo (`npm run dev`) so the real server is behind it. Have two browser tabs ready: one entered as **M. Chen** (medical officer), one as **Flight surgeon**.
 
 ## 0:00 Say this first (15 seconds)
 

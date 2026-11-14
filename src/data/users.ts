@@ -1,5 +1,6 @@
-// DEMO ACCOUNTS. These are made-up people and a made-up PIN for the prototype.
-// A real system would use the agency's own sign-in, not a shared PIN in a file.
+// DEMO ACCOUNTS. These are made-up people. Visitors choose one and are let in with one click.
+// DEMO_PIN is sent by the app itself, not typed: it only keeps the server's sign-in call in place.
+// A real system would use the agency's own sign-in.
 
 export type Role = 'crew' | 'cmo' | 'surgeon'
 

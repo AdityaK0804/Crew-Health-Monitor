@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChatCircleText, Check, Heartbeat, ListChecks, NotePencil, Planet, SignOut, Siren } from '@phosphor-icons/react'
+import { ChatCircleText, Check, Heartbeat, ListChecks, NotePencil, Planet, Siren, UserSwitch } from '@phosphor-icons/react'
 import Ask from './Ask'
 import CheckIn from './CheckIn'
 import EarthLink from './EarthLink'
@@ -170,8 +170,8 @@ export default function App() {
               <span className="block font-medium text-ink">{user.name}</span>
               <span className="block text-muted">{user.title}</span>
             </p>
-            <Button kind="ghost" onClick={() => void signOut()} aria-label="Sign out" className="px-2.5">
-              <SignOut size={18} />
+            <Button kind="ghost" onClick={() => void signOut()} aria-label="Switch person" title="Switch person" className="px-2.5">
+              <UserSwitch size={18} />
             </Button>
           </div>
         </div>

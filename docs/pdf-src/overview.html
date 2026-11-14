@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crew Health Monitor: project overview</title>
+<link rel="stylesheet" href="print.css">
+<style>
+@page { size: A4; margin: 0; }
+.page { width: 210mm; height: 297mm; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<div class="page">
+  <div style="display:flex; align-items:center; gap:3mm">
+    <svg viewBox="0 0 32 32" width="42" height="42" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="#3A3A41" stroke-width="1.5"/><path d="M3 16h7l2.5-6 4 12 2.8-8 1.7 2H29" fill="none" stroke="#EDEDEF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25.2" cy="6.8" r="2" fill="#EDEDEF"/></svg>
+    <p class="tag">NASA Space Apps Challenge 2026</p>
+  </div>
+  <div class="stack" style="gap:5mm; margin-top:18mm">
+    <h1>Crew Health Monitor</h1>
+    <p class="lead" style="max-width:150mm">Health monitoring for a crew that cannot call a doctor. It checks the same readings with Earth rules and with space rules, and shows where the two disagree.</p>
+  </div>
+  <img class="shot" src="../signal-detail.png" alt="Crew health screen" style="margin-top:6mm">
+  <div class="grid3" style="margin-top:2mm">
+    <div class="stack"><p class="tag">Live demo</p><p class="mono" style="color:#EDEDEF; font-size:9.5pt">crew-health-monitor.vercel.app</p></div>
+    <div class="stack"><p class="tag">Code</p><p class="mono" style="color:#EDEDEF; font-size:9.5pt">github.com/AdityaK0804/<br>Crew-Health-Monitor</p></div>
+    <div class="stack"><p class="tag">To enter</p><p style="color:#EDEDEF; font-size:9.5pt">Choose a person. No password.</p></div>
+  </div>
+  <div class="card warn" style="margin-top:auto">
+    <p><strong>Read this first.</strong> Every person and every reading in this prototype is simulated. It is a concept demonstrator built for a hackathon. It is not a medical device and has not been clinically validated.</p>
+  </div>
+  <div class="foot"><span>Project overview</span><span>1</span></div>
+</div>
+
+<!-- 2. Problem and idea -->
+<div class="page alt">
+  <p class="tag">Why we built it</p>
+  <h2>Far from Earth, the normal ranges stop working</h2>
+  <p class="lead">On the way to Mars a message can take 22 minutes each way. There may be no doctor on board. And the body changes in space, so the reference ranges on an Earth lab report can mislead a crew in two ways.</p>
+  <div class="grid3">
+    <div class="card"><p class="tag">False alarm</p><h3>Hematocrit rises 10 to 12% in flight</h3><p class="small">An Earth range calls that dehydration. In space it is expected, because plasma volume drops in weightlessness.</p><p><span class="chip check">Earth: Check</span> <span class="chip ok">Space: Normal</span></p></div>
+    <div class="card warn"><p class="tag amber">Missed</p><h3>Cabin CO2 that passes Earth limits</h3><p class="small">It is under the workplace limit, yet crews get headaches. On the station each extra 1 mmHg doubled the odds.</p><p><span class="chip ok">Earth: Normal</span> <span class="chip check">Space: Check</span></p></div>
+    <div class="card warn"><p class="tag amber">Missed</p><h3>1.6 litres of urine a day</h3><p class="small">Normal on Earth. In space, bones shed calcium into the urine, so NASA wants 2 litres to avoid kidney stones.</p><p><span class="chip ok">Earth: Normal</span> <span class="chip check">Space: Check</span></p></div>
+  </div>
+  <h2 style="margin-top:4mm">The idea: one set of data, two sets of rules</h2>
+  <table>
+    <tr><th style="width:34%"></th><th style="width:33%">Earth-standard rules</th><th style="width:33%">Space-adapted rules</th></tr>
+    <tr><td><strong>A normal spaceflight change</strong></td><td>False alarm</td><td>Explained as expected</td></tr>
+    <tr><td><strong>A concern that only matters in space</strong></td><td>Missed</td><td>Flagged, with what to do next</td></tr>
+    <tr><td><strong>Where the rule comes from</strong></td><td>Lab reference range</td><td>A published spaceflight source, linked on screen</td></tr>
+    <tr><td><strong>What it compares you with</strong></td><td>The average person on the ground</td><td>Your own pre-flight values and past missions</td></tr>
+  </table>
+  <div class="card" style="margin-top:auto"><p><strong>The honesty rule.</strong> Any threshold we could not trace to a published source is labelled “Demo parameter” on screen. Nothing unconfirmed is shown as fact.</p></div>
+  <div class="foot"><span>Crew Health Monitor</span><span>2</span></div>
+</div>
+
+<!-- 3. Crew health -->
+<div class="page">
+  <p class="tag">What we made</p>
+  <h2>Crew health: where, what next, and why</h2>
+  <figure><img class="shot" src="../crew-health.png" alt="Crew health overview"><figcaption><strong>The main screen.</strong> Crew and cabin on the left, a 3D body in the middle, today’s signals on the right. Colour appears only where something needs attention.</figcaption></figure>
+  <div class="grid3">
+    <div class="card"><h3>Where</h3><p class="small">A 3D body built from real, openly licensed anatomical models, male and female. The part behind a flagged signal glows and the camera moves to it. Zoom with the scroll wheel or by pinching on a touch screen.</p></div>
+    <div class="card"><h3>What next</h3><p class="small">Each signal opens with a “Do this next” box in plain words, with a button to log a new measurement, or to open the emergency steps when it is urgent.</p></div>
+    <div class="card"><h3>Why</h3><p class="small">Then the reason, both verdicts, what the measurement is and how to take it, which NASA risk it belongs to, where the reading came from, how old it is, and the source of the rule.</p></div>
+  </div>
+  <div class="grid2">
+    <figure><img class="shot" src="../blood-vessels.png" alt="Heart and blood layer" style="height:46mm; object-fit:cover; object-position:top"><figcaption><strong>Body systems.</strong> Switch between all systems, heart and blood, brain eyes and spine, and organs.</figcaption></figure>
+    <figure><img class="shot" src="../trends.png" alt="Trend chart" style="height:46mm; object-fit:cover; object-position:center 72%"><figcaption><strong>Trends since launch.</strong> Up to three signals against the crew member’s own pre-flight value.</figcaption></figure>
+  </div>
+  <div class="foot"><span>Crew Health Monitor</span><span>3</span></div>
+</div>
+
+<!-- 4. Signals -->
+<div class="page alt">
+  <p class="tag">What it watches</p>
+  <h2>Fifteen signals, each checked by both rule sets</h2>
+  <p>Thirteen for each crew member and two for the cabin. Each is tagged with one of NASA’s five hazards of spaceflight and links to NASA’s page for that risk.</p>
+  <table>
+    <tr><th style="width:31%">Signal</th><th style="width:19%">Do the rule sets differ?</th><th style="width:50%">Where the rule comes from</th></tr>
+    <tr><td><strong>Hematocrit</strong></td><td>Yes</td><td>Published study of ISS crews; lab range from NASA open data</td></tr>
+    <tr><td><strong>Optic nerve sheath (eye)</strong></td><td>Yes</td><td>Published review; the change threshold is a demo parameter</td></tr>
+    <tr><td><strong>Neck vein blood flow</strong></td><td>Explanation differs</td><td>Published study of 11 ISS crew</td></tr>
+    <tr><td><strong>Headache with cabin CO2</strong></td><td>Yes</td><td>Published ISS study and NASA standard</td></tr>
+    <tr><td><strong>Urine output (kidney stones)</strong></td><td>Yes</td><td>NASA renal stone studies</td></tr>
+    <tr><td><strong>White blood cells (immune)</strong></td><td>Yes</td><td>Lab range from NASA open data; in-flight rise published</td></tr>
+    <tr><td><strong>Vitamin D (nutrition)</strong></td><td>Yes</td><td>NASA flight surgeon protocol and flight studies</td></tr>
+    <tr><td><strong>Resistance exercise (bone)</strong></td><td>Yes</td><td>NASA bone loss figure; weekly cut-off is a demo parameter</td></tr>
+    <tr><td><strong>Cabin CO2</strong></td><td>Yes</td><td>NASA standard, 3 mmHg</td></tr>
+    <tr><td><strong>Radiation dose</strong></td><td>Yes</td><td>Measured rates and NASA’s 600 mSv career limit</td></tr>
+    <tr><td><strong>Sleep</strong></td><td>No</td><td>Demo parameter</td></tr>
+    <tr><td><strong>Oxygen level and heart rate</strong></td><td>No</td><td>Demo parameter</td></tr>
+    <tr><td><strong>Mood</strong></td><td>No</td><td>Demo parameter</td></tr>
+    <tr><td><strong>Body mass (food intake)</strong></td><td>No</td><td>Demo parameter</td></tr>
+    <tr><td><strong>Blood pressure, temperature, blood sugar</strong></td><td>No</td><td>Demo parameter, ordinary Earth limits</td></tr>
+  </table>
+  <div class="grid2" style="margin-top:auto">
+    <div class="card"><h3>Where the readings come from</h3><p class="small">A simulated device feed: wearables report every day, ultrasound every 14 days, blood tests every 30. Every value shows its source and its age, and warns when it is getting old. A check-in form is the manual fallback, and can carry a photo or ultrasound image.</p></div>
+    <div class="card"><h3>Mission setting</h3><p class="small">Space station, Moon surface or Mars transit. The setting changes the signal delay to Earth and the radiation rate, each with a source. On the Moon it also applies a smaller fluid shift, labelled as an assumption.</p></div>
+  </div>
+  <div class="foot"><span>Crew Health Monitor</span><span>4</span></div>
+</div>
+
+<!-- 5. Daily tools -->
+<div class="page">
+  <p class="tag">A day on board</p>
+  <h2>Built for the routine, not only for alarms</h2>
+  <div class="grid2">
+    <figure><img class="shot" src="../today.png" alt="Today screen"><figcaption><strong>Today.</strong> What the signed-in crew member needs to do: exams that are due or getting old, signals to re-check, and a note in their own words.</figcaption></figure>
+    <figure><img class="shot" src="../earth-link.png" alt="Earth link screen"><figcaption><strong>Earth link.</strong> Messages and health reports travel with the real signal delay for the mission, with a countdown. Earth sees only what the crew sends.</figcaption></figure>
+    <figure><img class="shot" src="../ask.png" alt="Ask the handbook screen"><figcaption><strong>Ask the handbook.</strong> No AI model and no connection. It answers only from the rules and today’s readings, shows the source, and says “I don’t have that” when it does not know.</figcaption></figure>
+    <figure><img class="shot" src="../emergency-step.png" alt="Emergency step screen"><figcaption><strong>Emergency.</strong> Large timed steps. Each one is marked as coming from a published source or as demo wording. The run is saved and sent to Earth.</figcaption></figure>
+  </div>
+  <div class="grid3" style="margin-top:auto">
+    <div class="card"><p class="tag">Crew member</p><p class="small">Sees their own health data.</p></div>
+    <div class="card"><p class="tag">Medical officer</p><p class="small">Sees every crew member.</p></div>
+    <div class="card"><p class="tag">Flight surgeon on Earth</p><p class="small">Sees only what the crew sent, after the delay.</p></div>
+  </div>
+  <p class="small">Privacy is enforced by the server in a local run. The public demo link has no server, so roles are for show there, and the app says so in a banner.</p>
+  <div class="foot"><span>Crew Health Monitor</span><span>5</span></div>
+</div>
+
+<!-- 6. Why it helps -->
+<div class="page alt">
+  <p class="tag">Why it helps</p>
+  <h2>Who benefits, and how</h2>
+  <div class="grid3">
+    <div class="card"><h3>The crew</h3><p class="small">Fewer false alarms to worry about, real concerns caught earlier, and plain instructions when Earth cannot answer in time. They do not need to be doctors to follow it.</p></div>
+    <div class="card"><h3>Flight surgeons</h3><p class="small">Reports arrive with the reading, its source, its age and the rule that flagged it, so a doctor on Earth can check the reasoning instead of starting from nothing.</p></div>
+    <div class="card"><h3>People on Earth</h3><p class="small">The same idea fits anywhere a non-doctor must decide before help arrives: remote clinics, ships, polar stations. Spaceflight changes also resemble accelerated ageing, which is why space agencies study them.</p></div>
+  </div>
+  <h2 style="margin-top:4mm">Why rules, and not a prediction model</h2>
+  <div class="grid3">
+    <div class="stack"><p class="big">0</p><h3>public in-flight datasets</h3><p class="small">Day-by-day astronaut vitals are not public. A model trained on invented data would only learn the invention.</p></div>
+    <div class="stack"><p class="big">44 min</p><h3>for a question and its answer</h3><p class="small">A spacecraft cannot wait for a cloud service. The rules run in the browser with no connection.</p></div>
+    <div class="stack"><p class="big">100%</p><h3>of flags show their reason</h3><p class="small">Every flag gives its reason and its source, so the crew and the flight surgeon can check it. A score cannot be audited the same way.</p></div>
+  </div>
+  <h2 style="margin-top:4mm">How it answers the challenge</h2>
+  <table>
+    <tr><th style="width:52%">The challenge asks for</th><th>Where we answer it</th></tr>
+    <tr><td>A visual tool to assess your own health</td><td>3D body with clickable markers, colour-coded signals</td></tr>
+    <tr><td>Guidance on what to do</td><td>“Do this next” on every signal, emergency walkthroughs</td></tr>
+    <tr><td>Blood pressure, heart rate, blood sugar, temperature, sleep, mood</td><td>All six are signals</td></tr>
+    <tr><td>Do not assume astronauts know how to assess their health</td><td>Plain explanation of each measurement, and the Ask tab</td></tr>
+    <tr><td>Prompts to take measurements, charts over time, colour coding</td><td>Today tab, trend chart, traffic-light levels</td></tr>
+    <tr><td>Different environments</td><td>Space station, Moon surface and Mars transit</td></tr>
+  </table>
+  <div class="foot"><span>Crew Health Monitor</span><span>6</span></div>
+</div>
+
+<!-- 7. Built, real vs simulated, limits -->
+<div class="page">
+  <p class="tag">Under the surface</p>
+  <h2>How it is built, and what it is not</h2>
+  <div class="grid3">
+    <div class="card"><p class="tag">1</p><h3>Readings come in</h3><p class="small">A simulated device feed, plus check-ins, notes and images from the crew.</p></div>
+    <div class="card" style="border-color:#EDEDEF"><p class="tag">2</p><h3>One rule file checks them</h3><p class="small">Plain functions with 25 automatic tests. The server and the screens use the same file, so there is one copy of the rules.</p></div>
+    <div class="card"><p class="tag">3</p><h3>Screens explain them</h3><p class="small">3D body, today’s tasks, Ask, emergency steps and reports to Earth.</p></div>
+  </div>
+  <p class="small">Built with React, TypeScript, Vite, Tailwind, Motion and three.js. The server and database use only what ships with Node, so nothing else has to be installed or paid for.</p>
+  <div class="grid2">
+    <div class="card"><p class="tag">Real</p><ul class="small"><li>The published sources behind each rule</li><li>Lab ranges and pre-flight blood values from NASA’s open data (Inspiration4 crew)</li><li>Radiation rates measured on the station, the Moon and the way to Mars</li><li>The body and organ models</li></ul></div>
+    <div class="card"><p class="tag">Simulated</p><ul class="small"><li>The crew and their accounts</li><li>Every day-by-day reading</li><li>The device feed and its schedules</li><li>Emergency steps marked “demo only”</li></ul></div>
+  </div>
+  <div class="card warn">
+    <h3>What it would take to be real</h3>
+    <ul class="small"><li>Real device data in place of the simulated feed</li><li>The agency’s own sign-in system and encryption. Today anyone can enter as any demo person</li><li>Clinical validation of every threshold, including those with a published source</li><li>Measured data for long stays in Moon gravity, which does not exist yet</li></ul>
+  </div>
+  <div class="stack" style="margin-top:auto">
+    <p class="tag">Credits</p>
+    <p class="small">Male body, organs and vessels: BodyParts3D, © The Database Center for Life Science, CC BY 4.0. Female body and organs: HRA 3D Reference Organs (Visible Human female), HuBMAP Consortium, CC BY 4.0. Blood count data: NASA Open Science Data Repository, OSD-569. Resources from NASA’s Human Research Program and the Canadian Space Agency. The mark in the header is our own and is not a NASA logo.</p>
+  </div>
+  <div class="foot"><span>Educational prototype using simulated data. Not a medical device.</span><span>7</span></div>
+</div>
+
+</body>
+</html>

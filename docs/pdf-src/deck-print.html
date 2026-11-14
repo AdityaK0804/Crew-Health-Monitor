@@ -1,0 +1,227 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Crew Health Monitor pitch deck</title>
+<style>
+@font-face { font-family: 'Geist'; src: url('../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Mono'; src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+@page { size: 1920px 1080px; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+h1, h2, h3, p { margin: 0; }
+/* Crew Health Monitor deck. Same look as the app: near-black ground, off-white text,
+   and one colour, amber, used only where attention is needed. */
+section {
+  --ground: #0B0B0D;
+  --panel: #151518;
+  --line: #2A2A30;
+  --ink: #EDEDEF;
+  --soft: #C4C4CC;
+  --muted: #A1A1AA;
+  --amber: #F5A524;
+  --red: #FF7A7F;
+  background: #0B0B0D;
+  color: #EDEDEF;
+  font-family: 'Geist', Arial, sans-serif;
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  counter-increment: page;
+}
+section.alt { background: #151518; }
+section.statement { background: #F5A524; color: #0B0B0D; justify-content: center; gap: 40px; }
+
+h1 { font-size: 112px; font-weight: 600; line-height: 1.02; letter-spacing: -3px; }
+h2 { font-size: 72px; font-weight: 600; line-height: 1.08; letter-spacing: -1.5px; }
+h3 { font-size: 36px; font-weight: 600; line-height: 1.2; }
+p { font-size: 32px; line-height: 1.4; color: #C4C4CC; }
+
+.lead { font-size: 44px; line-height: 1.3; color: #EDEDEF; }
+.small { font-size: 24px; line-height: 1.4; color: #A1A1AA; }
+.mono { font-family: 'Geist Mono', 'Courier New', monospace; }
+.amber { color: #F5A524; }
+.ink { color: #EDEDEF; }
+.dark { color: #0B0B0D; }
+
+.tag { font-family: 'Geist Mono', 'Courier New', monospace; font-size: 24px; letter-spacing: 3px; color: #A1A1AA; }
+
+.row { display: flex; flex-direction: row; gap: 48px; }
+.col { display: flex; flex-direction: column; gap: 24px; }
+.grow { flex: 1; }
+.center { align-items: center; }
+.between { justify-content: space-between; }
+
+.card { background: #151518; border: 2px solid #2A2A30; border-radius: 24px; padding: 40px; display: flex; flex-direction: column; gap: 16px; }
+section.alt .card { background: #0B0B0D; }
+.card .cardtext { font-size: 28px; line-height: 1.35; color: #C4C4CC; }
+.card.warn { border-color: #F5A524; }
+/* Three tall cards across a slide: larger type so they fill their height. */
+.card.roomy { padding: 48px; gap: 24px; }
+.card.roomy h3 { font-size: 42px; }
+.card.roomy .cardtext { font-size: 32px; line-height: 1.4; }
+.card.roomy .chips { margin-top: auto; }
+.tag.amber { color: #F5A524; }
+
+.big { font-family: 'Geist Mono', 'Courier New', monospace; font-size: 120px; font-weight: 500; line-height: 1; color: #EDEDEF; letter-spacing: -2px; }
+.big.amber { color: #F5A524; }
+
+.shot { border: 2px solid #2A2A30; border-radius: 20px; object-fit: cover; }
+
+.chip { font-size: 24px; font-weight: 600; padding: 8px 20px; border-radius: 10px; display: inline-block; }
+.chip.check { background: #2E2209; color: #F5A524; }
+.chip.ok { border: 2px solid #2A2A30; color: #A1A1AA; }
+
+.node { background: #151518; border: 2px solid #2A2A30; border-radius: 20px; padding: 28px 32px; display: flex; flex-direction: column; gap: 8px; }
+.node.key { border-color: #EDEDEF; }
+.node .nodetitle { font-size: 30px; font-weight: 600; color: #EDEDEF; line-height: 1.2; }
+.node .nodetext { font-size: 24px; line-height: 1.35; color: #A1A1AA; }
+
+.foot { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; flex-direction: row; justify-content: space-between; }
+.foot p { font-size: 24px; color: #A1A1AA; }
+section.statement .foot p { color: #0B0B0D; }
+
+table { font-size: 28px; color: #C4C4CC; width: 100%; }
+th { color: #A1A1AA; font-weight: 600; text-align: left; }
+
+/* Arrivals: each staged piece fades up once. The plain rule is the finished look. */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+.stage { animation: rise 500ms both; animation-delay: calc(var(--i) * 120ms); }
+
+section { position: relative; width: 1920px; height: 1080px; break-after: page; overflow: hidden; }
+aside { display: none; }
+.stage { animation: none; }
+</style></head><body><section id="cover" data-transition="fade">
+<div class="row center grow">
+<div class="col grow" style="gap:36px">
+<p class="tag">NASA SPACE APPS 2026</p>
+<h1>Crew Health Monitor</h1>
+<p class="lead">Health monitoring for a crew that cannot call a doctor.</p>
+<p class="small">Every person and every reading in this prototype is simulated. Not a medical device.</p>
+</div>
+<img class="shot" src="../signal-detail.png" alt="The crew health screen: a 3D body with the neck vein highlighted in amber and the signal explained beside it" style="width:880px; height:550px">
+</div>
+<div class="foot"><p>crew-health-monitor.vercel.app</p><p>Health monitoring software for astronauts</p></div>
+<aside>0:00 to 0:15. Say: “This is Crew Health Monitor. Before anything else: everything you will see is simulated. The crew, the readings, the accounts. Real astronaut data is not public. What is real is the rules, and each one shows the paper it comes from.”</aside>
+</section>
+
+<section id="problem" data-transition="fade">
+<h2>Help is too far away to wait for</h2>
+<div class="row grow center">
+<div class="col grow stage" style="--i:0">
+<p class="big">22 min</p>
+<h3>for a message to reach Earth</h3>
+<p class="small">The longest one-way delay on a Mars mission. A question and its answer take about 44 minutes.</p>
+</div>
+<div class="col grow stage" style="--i:1">
+<p class="big">70%</p>
+<h3>of station astronauts get eye swelling</h3>
+<p class="small">NASA reports some swelling at the back of the eye in about 70 percent of International Space Station crew.</p>
+</div>
+<div class="col grow stage" style="--i:2">
+<p class="big amber">1.5%</p>
+<h3>of hip and spine bone lost each month</h3>
+<p class="small">NASA’s figure for four-to-six-month missions. The body changes in ways no Earth clinic sees.</p>
+</div>
+</div>
+<div class="foot"><p>Sources: NASA Human Research Program risk pages</p><p class="mono">02</p></div>
+<aside>0:15 to 0:35. Say: “On the way to Mars a message can take 22 minutes each way. There may be no doctor on board. And the body changes: most station astronauts get swelling at the back of the eye, and bone is lost every month. The crew has to notice and act on their own.”</aside>
+</section>
+
+<section id="gap" class="alt" data-transition="fade">
+<h2>Earth’s normal ranges fail in two ways</h2>
+<div class="row grow">
+<div class="card roomy grow stage" style="--i:0">
+<p class="tag">FALSE ALARM</p>
+<h3>Hematocrit rises 10 to 12% in flight</h3>
+<p class="cardtext">An Earth lab range calls that dehydration. In space it is expected: plasma volume drops in weightlessness.</p>
+<div class="row chips" style="gap:16px"><p class="chip check">Earth: Check</p><p class="chip ok">Space: Normal</p></div>
+</div>
+<div class="card roomy grow warn stage" style="--i:1">
+<p class="tag amber">MISSED</p>
+<h3>Cabin CO2 that passes Earth limits</h3>
+<p class="cardtext">It is under the workplace limit, yet crews get headaches. On the station each extra 1 mmHg doubled the odds.</p>
+<div class="row chips" style="gap:16px"><p class="chip ok">Earth: Normal</p><p class="chip check">Space: Check</p></div>
+</div>
+<div class="card roomy grow warn stage" style="--i:2">
+<p class="tag amber">MISSED</p>
+<h3>1.6 litres of urine a day</h3>
+<p class="cardtext">Normal on Earth. In space, bones shed calcium into the urine, so NASA wants 2 litres to avoid kidney stones.</p>
+<div class="row chips" style="gap:16px"><p class="chip ok">Earth: Normal</p><p class="chip check">Space: Check</p></div>
+</div>
+</div>
+<div class="foot"><p>Sources: Kunz 2017, Law 2014, NASA renal stone studies</p><p class="mono">03</p></div>
+<aside>0:35 to 0:55. Say: “The normal ranges on an Earth lab report fail in two ways. They raise false alarms: hematocrit rises in flight and Earth rules call it dehydration. And they miss real problems: carbon dioxide that passes Earth limits still gives crews headaches, and a urine volume that is fine on Earth is a kidney stone risk in space.”</aside>
+</section>
+
+<section id="product" data-transition="fade">
+<h2>One set of data, two sets of rules</h2>
+<div class="row grow center" style="gap:64px">
+<img class="shot" src="../signal-detail.png" alt="Crew health screen with the camera on the neck, the neck vein glowing amber, and a box saying do this next" style="width:1010px; height:631px">
+<div class="col grow" style="gap:32px">
+<div class="col stage" style="--i:0; gap:8px"><h3>Both verdicts, side by side</h3><p class="small">Earth-standard and space-adapted rules check the same reading, so the crew sees where Earth rules mislead.</p></div>
+<div class="col stage" style="--i:1; gap:8px"><h3>Where, on a real 3D body</h3><p class="small">The flagged part glows and the camera moves to it. Built from open anatomical models.</p></div>
+<div class="col stage" style="--i:2; gap:8px"><h3>What to do next, and why</h3><p class="small">Plain words first, then the reason, how to measure it, the NASA risk it belongs to and the source.</p></div>
+</div>
+</div>
+<div class="foot"><p>Screenshot from the running prototype, simulated data</p><p class="mono">04</p></div>
+<aside>0:55 to 1:35. Show the live app here. Select A. Rivera and click the neck vein marker. Say: “We check the same readings with two rule sets and show both verdicts side by side. The camera goes to the problem. Blood flow in his neck vein has stalled. Six of eleven station crew showed this in one study, and one got a clot. The screen tells a non-doctor what to do first, then why, and how the measurement is taken. Every rule shows its source.”</aside>
+</section>
+
+<section id="features" class="alt" data-transition="fade">
+<h2>Built for a day on board, not only for alarms</h2>
+<div class="grow" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:32px">
+<div class="card stage" style="--i:0"><h3>Today</h3><p class="cardtext">What to measure, what to re-check, and a note in your own words.</p></div>
+<div class="card stage" style="--i:1"><h3>Earth link</h3><p class="cardtext">Messages and reports travel with the real signal delay for the mission.</p></div>
+<div class="card stage" style="--i:2"><h3>Ask the handbook</h3><p class="cardtext">Answers only from the rules and today’s readings. No AI model, no connection needed.</p></div>
+<div class="card stage" style="--i:3"><h3>Emergency</h3><p class="cardtext">Large timed steps. Each one is marked as published guidance or demo wording.</p></div>
+<div class="card stage" style="--i:4"><h3>Mission setting</h3><p class="cardtext">Space station, Moon or Mars. Delay and radiation change, each with a source.</p></div>
+<div class="card stage" style="--i:5"><h3>Privacy by role</h3><p class="cardtext">Crew see their own data. The medical officer sees all. Earth sees what is sent.</p></div>
+</div>
+<div class="foot"><p>15 signals, each checked by both rule sets</p><p class="mono">05</p></div>
+<aside>1:35 to 2:15. Show the Today tab, then Ask, then Earth link. Say: “This is what a crew member sees each day: what to measure and what to re-check. The Ask tab has no AI model. It only answers from the rules and today’s readings, and it says so when it does not know. On the Earth link, a report takes sixteen minutes to arrive on this mission day.” Send a report and show the countdown. Then open Emergency for five seconds: “And if someone collapses, large timed steps, each marked as published guidance or demo wording.”</aside>
+</section>
+
+<section id="evidence" data-transition="fade">
+<h2>What you can trust, and what is simulated</h2>
+<div class="row grow" style="gap:32px">
+<div class="card roomy grow stage" style="--i:0">
+<p class="tag">REAL</p>
+<h3>The rules and their sources</h3>
+<p class="cardtext">Published spaceflight studies and NASA standards behind each rule, linked on screen.</p>
+<p class="cardtext">Lab ranges and pre-flight blood values from NASA’s open data.</p>
+<p class="cardtext">Radiation rates measured on the station, the Moon and the way to Mars.</p>
+</div>
+<div class="card roomy grow stage" style="--i:1">
+<p class="tag">SIMULATED</p>
+<h3>The crew and every reading</h3>
+<p class="cardtext">Real astronaut vitals are not public, so the readings are generated.</p>
+<p class="cardtext">Thresholds we could not source say “Demo parameter” on screen.</p>
+<p class="cardtext">Emergency steps marked “demo only”.</p>
+</div>
+<div class="card roomy grow warn stage" style="--i:2">
+<p class="tag amber">BY CHOICE</p>
+<h3>Rules, not a prediction model</h3>
+<p class="cardtext">There is no public in-flight data to train on.</p>
+<p class="cardtext">It must run on board with no connection.</p>
+<p class="cardtext">A crew far from help must see why a flag was raised, and check it.</p>
+</div>
+</div>
+<div class="foot"><p>Every signal links to its NASA Human Research Program risk page</p><p class="mono">06</p></div>
+<aside>2:15 to 2:45. Say: “To be clear about what is real. The rules, their sources, the lab ranges and the body models are real. The crew and every reading are simulated, and any threshold we could not source says so on screen. We chose rules, not a prediction model, on purpose: there is no public in-flight data to train on, the tool has to run on board with no connection, and a crew far from help needs to see why a flag was raised.”</aside>
+</section>
+
+<section id="close" class="alt" data-transition="fade">
+<div class="row center grow" style="gap:80px">
+<div class="col grow" style="gap:32px">
+<p class="tag">TRY IT</p>
+<h1>Earth rules for Earth. Space rules for space.</h1>
+<p class="small">A concept demonstrator, not a deployable system. To be real it needs confirmed sources, real device data, an agency sign-in and clinical validation. The same idea helps on Earth wherever a non-doctor must decide before help arrives.</p>
+<div class="col" style="gap:12px">
+<p class="lead mono">crew-health-monitor.vercel.app</p>
+<p class="small">Choose a person to enter, no password. The public link has no server, so roles are for show there.</p>
+<p class="small mono">github.com/AdityaK0804/Crew-Health-Monitor</p>
+</div>
+</div>
+<img class="shot" src="../blood-vessels.png" alt="The heart and blood layer of the 3D body, showing the vessel tree" style="width:720px; height:450px">
+</div>
+<div class="foot"><p>[TEAM NAME] · [TEAM MEMBERS]</p><p>Educational prototype using simulated data. Not a medical device.</p></div>
+<aside>2:45 to 3:00. Say: “This is a prototype, not a deployable system. To be real it needs confirmed sources, real devices and clinical validation. And the same idea helps on Earth, anywhere a non-doctor has to decide before help arrives. Earth rules for Earth, space rules for space. Thank you.”</aside>
+</section>
+</body></html>

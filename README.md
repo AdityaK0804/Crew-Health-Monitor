@@ -4,7 +4,7 @@ Health monitoring for a crew that cannot call a doctor. Built for the NASA Space
 
 > **Read this first.** Every person and every reading in this app is simulated. It is a concept demonstrator for a hackathon, not a medical device, and it has not been clinically validated.
 
-**Live demo: https://crew-health-monitor.vercel.app**. 
+**Live demo: https://crew-health-monitor.vercel.app**
 
 ![Crew health screen: a 3D body with the neck vein flagged, and the signal explained on the right](docs/signal-detail.png)
 
@@ -174,7 +174,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. Every demo account uses PIN `2026`. To see the Earth side, sign in as "Flight surgeon" in a second browser tab.
+Open http://localhost:5173 and choose a person to enter. There is no password. To see the Earth side, enter as "Flight surgeon" in a second browser tab.
 
 ```bash
 npm test
@@ -214,7 +214,7 @@ First load: the 3D view and its 13 MB model file load only when the Crew health 
 This is a prototype. It is not deployable, and we do not claim it is. A real system would need:
 
 - Integration with real devices instead of a simulated feed.
-- The agency's own identity system. Here every demo account shares one PIN.
+- The agency's own identity system. Here anyone can enter as any demo person with one click.
 - Encryption of data at rest and in transit.
 - Clinical validation of every threshold, including the ones that have a published source.
 - Peripheral nerves and a matched female vessel model, which the free anatomical datasets do not include.
