@@ -4,7 +4,7 @@ Health monitoring for a crew that cannot call a doctor. Built for the NASA Space
 
 > **Read this first.** Every person and every reading in this app is simulated. It is a concept demonstrator for a hackathon, not a medical device, and it has not been clinically validated.
 
-**Live demo: https://crew-health-monitor.vercel.app** (every demo account uses PIN `2026`). The live link is a reduced version; see [Live demo versus local](#live-demo-versus-local).
+**Live demo: https://crew-health-monitor.vercel.app**. 
 
 ![Crew health screen: a 3D body with the neck vein flagged, and the signal explained on the right](docs/signal-detail.png)
 
