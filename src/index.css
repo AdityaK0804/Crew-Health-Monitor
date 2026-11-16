@@ -64,3 +64,74 @@ input[type="range"].day-range::-moz-range-thumb { width: 14px; height: 14px; bor
 /* Quiet scrollbars inside panels. */
 * { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Native dialogs and popovers (top layer). They fade and rise in with @starting-style and
+   animate out by transitioning display and overlay. Where the browser cannot animate the
+   exit, src/topLayer.ts sets data-closing first, which runs the same transition. */
+.top-layer {
+  --enter-y: 12px;
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 220ms;
+  transition-timing-function: var(--ease-out-expo);
+  transition-behavior: allow-discrete;
+}
+:is(dialog.top-layer[open], .top-layer:popover-open):where(:not([data-closing])) { opacity: 1; }
+@starting-style {
+  :is(dialog.top-layer[open], .top-layer:popover-open):where(:not([data-closing])) { opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .top-layer { transform: translateY(var(--enter-y)) scale(0.98); }
+  :is(dialog.top-layer[open], .top-layer:popover-open):where(:not([data-closing])) { transform: none; }
+  @starting-style {
+    :is(dialog.top-layer[open], .top-layer:popover-open):where(:not([data-closing])) { transform: translateY(var(--enter-y)) scale(0.98); }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .top-layer, .top-layer::backdrop { transition-duration: 100ms; }
+}
+
+dialog.top-layer::backdrop {
+  background-color: rgb(0 0 0 / 0);
+  backdrop-filter: blur(0);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 220ms;
+  transition-timing-function: var(--ease-out-expo);
+  transition-behavior: allow-discrete;
+}
+dialog.top-layer[open]:where(:not([data-closing]))::backdrop { background-color: rgb(0 0 0 / 0.7); backdrop-filter: blur(4px); }
+@starting-style {
+  dialog.top-layer[open]:where(:not([data-closing]))::backdrop { background-color: rgb(0 0 0 / 0); backdrop-filter: blur(0); }
+}
+/* Scrolling inside the dialog or over its backdrop must not scroll the page behind. */
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
+
+/* Mission setting menu: a popover tied to its button with CSS anchor positioning.
+   It sits under the button, right-aligned, and flips when it would leave the screen. */
+.mission-trigger { anchor-name: --mission-menu; }
+.mission-popover { --enter-y: -6px; transform-origin: top right; }
+@supports (position-area: block-end) {
+  .mission-popover {
+    position-anchor: --mission-menu;
+    inset: auto;
+    margin: 8px 0 0;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+}
+@supports not (position-area: block-end) {
+  .mission-popover { position: fixed; inset: 4.5rem 1rem auto auto; margin: 0; }
+}
+
+/* Switching tabs: the active tab pill slides, and the content cross-fades with a small rise. */
+::view-transition-group(tab-active) { animation-duration: 320ms; animation-timing-function: var(--ease-out-expo); }
+::view-transition-old(tab-content) { animation: 140ms ease-in both tab-out; }
+::view-transition-new(tab-content) { animation: 260ms var(--ease-out-expo) both tab-in; }
+@keyframes tab-out { to { opacity: 0; } }
+@keyframes tab-in { from { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}

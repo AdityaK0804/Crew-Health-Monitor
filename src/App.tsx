@@ -1,4 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChatCircleText, Check, Heartbeat, ListChecks, NotePencil, Planet, Siren, UserSwitch } from '@phosphor-icons/react'
 import Ask from './Ask'
@@ -41,6 +42,21 @@ export default function App() {
   const [checkInOpen, setCheckInOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const lastState = useRef('')
+  const content = useRef<HTMLElement>(null)
+
+  /** Change tab with a view transition: the tab pill slides and the content fades up.
+   *  Browsers without the API switch at once. */
+  const go = useCallback((next: Tab) => {
+    const update = () => flushSync(() => setTab(next))
+    if (!document.startViewTransition) return update()
+    const t = document.startViewTransition(update)
+    // Clicking another tab mid-transition skips this one; that is expected, not an error.
+    t.ready.catch(() => {})
+    // If the control that was clicked left with the old tab, keep focus in the new one.
+    void t.finished.finally(() => {
+      if (!document.activeElement || document.activeElement === document.body) content.current?.focus()
+    })
+  }, [])
   const [demo, setDemo] = useState(false)
   useEffect(() => {
     void isDemoMode().then(setDemo)
@@ -133,8 +149,8 @@ export default function App() {
         {!isEarth && (
           <nav className="flex gap-1" aria-label="Sections">
             {TABS.map((t) => (
-              <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id ? 'page' : undefined} className="press relative flex min-h-11 items-center gap-2 rounded-[10px] px-3 text-sm font-medium">
-                {tab === t.id && <motion.span layoutId="tab-active" transition={SPRING} className="absolute inset-0 rounded-[10px] bg-raised" />}
+              <button key={t.id} onClick={() => tab !== t.id && go(t.id)} aria-current={tab === t.id ? 'page' : undefined} className="press relative flex min-h-11 items-center gap-2 rounded-[10px] px-3 text-sm font-medium">
+                {tab === t.id && <span style={{ viewTransitionName: 'tab-active' }} className="absolute inset-0 rounded-[10px] bg-raised" />}
                 <t.icon size={18} className={`relative ${tab === t.id ? 'text-ink' : 'text-muted'}`} />
                 <span className={`relative ${tab === t.id ? 'text-ink' : 'text-muted'}`}>{t.label}</span>
               </button>
@@ -182,6 +198,7 @@ export default function App() {
         </p>
       )}
 
+      <main ref={content} tabIndex={-1} aria-label={isEarth ? 'Earth link' : TABS.find((t) => t.id === tab)?.label} style={{ viewTransitionName: 'tab-content' }} className="outline-none">
       <Suspense fallback={Loading}>
       {isEarth ? (
         <EarthLink side="earth" day={day} mission={mission} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
@@ -193,8 +210,8 @@ export default function App() {
           state={state}
           onTask={async (key, done) => void apply(await postTask(day, key, done))}
           onNote={async (text) => apply(await postNote(day, text), 'Note saved.')}
-          onOpenCrew={(id) => (setSelected(id), setTab('health'))}
-          onOpenEarth={() => setTab('earth')}
+          onOpenCrew={(id) => (setSelected(id), go('health'))}
+          onOpenEarth={() => go('earth')}
         />
       ) : tab === 'health' ? (
         <Overview
@@ -221,21 +238,20 @@ export default function App() {
         <EarthLink side="ship" day={day} mission={mission} messages={state.messages} skew={skew} onSend={(b) => send(b)} />
       )}
       </Suspense>
+      </main>
 
-      <AnimatePresence>
-        {checkInOpen && (
-          <CheckIn
-            key="checkin"
-            day={day}
-            checkIns={state.checkIns}
-            mission={mission}
-            crewIds={subjects.filter((s) => s.id !== CABIN_ID && visible(s.id)).map((s) => s.id)}
-            initialCrewId={mySelected}
-            onSave={saveCheckIn}
-            onClose={() => setCheckInOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {checkInOpen && (
+        <CheckIn
+          key="checkin"
+          day={day}
+          checkIns={state.checkIns}
+          mission={mission}
+          crewIds={subjects.filter((s) => s.id !== CABIN_ID && visible(s.id)).map((s) => s.id)}
+          initialCrewId={mySelected}
+          onSave={saveCheckIn}
+          onClose={() => setCheckInOpen(false)}
+        />
+      )}
 
       <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex justify-center px-4" aria-live="polite">
         <AnimatePresence>

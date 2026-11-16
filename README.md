@@ -142,7 +142,9 @@ Step-by-step walkthroughs with large controls. The screen points to the scenario
 |---|---|
 | ![Emergency scenario list](docs/emergency-pick.png) | ![Emergency step](docs/emergency-step.png) |
 
-### Sign-in and privacy
+### Choose who you are, and privacy by role
+
+The first screen lists the demo people. Click one to enter as that person: there is no password to type. "Switch person" in the header brings you back to the list.
 
 | Role | Sees |
 |---|---|
@@ -150,7 +152,7 @@ Step-by-step walkthroughs with large controls. The screen points to the scenario
 | Crew medical officer | Every crew member |
 | Flight surgeon on Earth | Only what the crew sent, after the delay |
 
-![Sign-in screen](docs/sign-in.png)
+![Entry screen listing the demo people and what each can see](docs/sign-in.png)
 
 ## Live demo versus local
 
@@ -180,7 +182,18 @@ Open http://localhost:5173 and choose a person to enter. There is no password. T
 npm test
 ```
 
-A three-minute walkthrough for presenting it is in [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
+## Presentation and submission material
+
+| File | What it is |
+|---|---|
+| [Pitch deck (PDF, 7 slides)](docs/Crew-Health-Monitor-Pitch-Deck.pdf) | The slides for the video pitch |
+| [Project overview (PDF, 7 pages)](docs/Crew-Health-Monitor-Overview.pdf) | What we made, why, and how it helps, with screenshots |
+| [Video script and timeline (PDF)](docs/Crew-Health-Monitor-Video-Script.pdf) | What to show and say in three minutes, and likely judge questions |
+| [Infographic deck](docs/infographic-deck/) | An alternative 7-slide deck, as PDF and PowerPoint |
+| [Submission answers](docs/SUBMISSION.md) | Paste-ready text for the Space Apps submission form |
+| [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | The three-minute walkthrough as plain text |
+
+The first three PDFs are built from HTML in `docs/pdf-src/` with `node docs/pdf-src/build-pdfs.mjs`.
 
 ## How it is built
 

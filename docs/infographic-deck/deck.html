@@ -1,0 +1,382 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Crew Health Monitor deck</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+@font-face { font-family: 'Geist'; src: url('../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Mono'; src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+:root{
+  --bg:#F3F5FA; --panel:#FFFFFF; --navy:#0E1B3D; --indigo:#26357A; --line:#D9DFEC;
+  --ink:#0E1B3D; --soft:#3B4566; --muted:#66708C; --amber:#F5A524; --amber-ink:#8A5A00; --amber-soft:#FFF2D9;
+  --teal:#0F8A75; --teal-soft:#DDF3EE; --red:#D23F4A; --red-soft:#FDE6E8;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:1920px 1080px;margin:0}
+body{background:#888;font-family:'Geist',Arial,sans-serif;color:var(--ink)}
+section{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--bg);padding:44px 56px 40px;display:flex;flex-direction:column;gap:22px;break-after:page;margin:0 auto 20px}
+section::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 500px at 100% 0%,#E4E9F7 0,transparent 70%),radial-gradient(700px 400px at 0% 100%,#FFF4E0 0,transparent 70%);z-index:0}
+section>*{position:relative;z-index:1}
+
+/* header */
+.hd{display:flex;align-items:center;gap:26px}
+.mark{width:76px;height:76px;border-radius:20px;background:var(--navy);display:grid;place-items:center;flex:none}
+.mark svg{width:46px}
+.hd .t{flex:1;display:flex;flex-direction:column;gap:6px}
+.kicker{align-self:flex-start;background:var(--indigo);color:#fff;font-size:17px;font-weight:700;letter-spacing:.5px;padding:5px 16px;border-radius:999px}
+h1{font-size:58px;font-weight:800;letter-spacing:-1.6px;line-height:1.02}
+.hl{background:var(--amber);padding:0 14px;border-radius:12px;box-decoration-break:clone}
+.sub{font-size:23px;color:var(--soft);font-weight:500}
+.teampill{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:16px;color:var(--muted);font-weight:600;letter-spacing:1px}
+.teampill b{font-size:22px;color:var(--navy);letter-spacing:0}
+
+/* panels */
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 20px rgba(14,27,61,.06)}
+.ph{background:var(--navy);color:#fff;font-size:21px;font-weight:700;padding:11px 20px;display:flex;align-items:center;gap:10px}
+.ph i{font-size:24px;color:var(--amber)}
+.ph.amber{background:var(--amber);color:var(--navy)} .ph.amber i{color:var(--navy)}
+.ph.indigo{background:var(--indigo)}
+.pb{padding:18px 22px;display:flex;flex-direction:column;gap:14px;flex:1}
+.grid{display:grid;gap:20px}
+.row{display:flex;gap:20px}
+.col{display:flex;flex-direction:column;gap:20px}
+.f1{flex:1;min-width:0}
+
+.ic{width:52px;height:52px;border-radius:14px;background:var(--amber-soft);color:var(--amber-ink);display:grid;place-items:center;font-size:28px;flex:none}
+.ic.n{background:#E6EAF6;color:var(--indigo)}
+.ic.t{background:var(--teal-soft);color:var(--teal)}
+.ic.r{background:var(--red-soft);color:var(--red)}
+.item{display:flex;gap:14px;align-items:flex-start}
+.item h4{font-size:23px;font-weight:700;line-height:1.2}
+.item p,.p{font-size:19px;color:var(--soft);line-height:1.38}
+.p b,.item p b{color:var(--ink)}
+.big{font-family:'Geist Mono',monospace;font-size:72px;font-weight:600;letter-spacing:-2px;line-height:1}
+.big.a{color:#D98A00}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;padding:4px 11px;border-radius:8px;white-space:nowrap}
+.chip.chk{background:var(--amber-soft);color:var(--amber-ink);border:1.5px solid #F2C878}
+.chip.ok{background:var(--teal-soft);color:var(--teal);border:1.5px solid #9FD9CC}
+.chip.urg{background:var(--red-soft);color:var(--red);border:1.5px solid #F2A9AF}
+.mono{font-family:'Geist Mono',monospace}
+.take{background:var(--navy);color:#fff;border-radius:20px;padding:16px 24px;display:flex;align-items:center;gap:18px;font-size:22px;font-weight:600}
+.take .lab{background:var(--amber);color:var(--navy);font-weight:800;padding:8px 16px;border-radius:12px;font-size:18px;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.take em{font-style:normal;color:var(--amber)}
+.shot{border-radius:14px;border:2px solid #1d2233;display:block;width:100%;object-fit:cover;object-position:top left;background:#0B0B0D}
+.cap{font-size:15px;color:var(--muted);font-weight:600}
+.foot{position:absolute;left:56px;right:56px;bottom:14px;display:flex;justify-content:space-between;font-size:14px;color:var(--muted);z-index:1}
+.arrow{color:var(--indigo);font-size:30px;align-self:center}
+table{border-collapse:collapse;width:100%;font-size:17px}
+table.lg{font-size:20px} table.lg td{padding:18px 14px}
+th{background:#E9EDF7;color:var(--indigo);text-align:left;padding:9px 12px;font-weight:700}
+td{padding:9px 12px;border-top:1.5px solid var(--line);color:var(--soft);vertical-align:top}
+td b{color:var(--ink)}
+
+/* cover */
+section.cover{background:radial-gradient(1200px 700px at 78% 40%,#24357D 0,#0E1B3D 55%,#070D20 100%);color:#fff;padding:0}
+section.cover::before{background:
+ radial-gradient(1.6px 1.6px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 22% 72%,#cfd8ff 50%,transparent 51%),
+ radial-gradient(1.8px 1.8px at 35% 30%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 48% 85%,#fff 50%,transparent 51%),
+ radial-gradient(1.4px 1.4px at 8% 52%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 42% 8%,#cfd8ff 50%,transparent 51%),
+ radial-gradient(1.6px 1.6px at 92% 90%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 60% 12%,#fff 50%,transparent 51%),
+ radial-gradient(1.4px 1.4px at 30% 92%,#cfd8ff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 96% 8%,#fff 50%,transparent 51%),
+ radial-gradient(1.2px 1.2px at 18% 40%,#fff 50%,transparent 51%),radial-gradient(1.4px 1.4px at 52% 55%,#cfd8ff 50%,transparent 51%)}
+.planet{position:absolute;right:-260px;bottom:-520px;width:1100px;height:1100px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E8A640 0,#B4651F 35%,#5A2A12 70%,#22100a 100%);box-shadow:0 0 120px rgba(245,165,36,.35);z-index:0;opacity:.9}
+.orbit{position:absolute;right:140px;top:110px;width:900px;height:900px;border:1.5px dashed rgba(255,255,255,.14);border-radius:50%;z-index:0}
+
+/* journey */
+.step{position:relative;background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 20px rgba(14,27,61,.06)}
+.num{position:absolute;top:-16px;left:16px;width:40px;height:40px;border-radius:50%;background:var(--amber);color:var(--navy);font-weight:800;font-size:20px;display:grid;place-items:center;border:3px solid var(--bg)}
+.step h4{font-size:21px;font-weight:800;margin-top:10px}
+.step p{font-size:16px;color:var(--soft);line-height:1.35}
+.road{display:flex;gap:0;align-items:stretch}
+.phase{flex:1;padding:14px 16px;border-left:3px dashed var(--line);display:flex;flex-direction:column;gap:6px}
+.phase:first-child{border-left:none}
+.phase .when{font-size:15px;font-weight:700;color:var(--amber-ink);letter-spacing:.5px}
+.phase h4{font-size:20px;font-weight:800}
+.phase p{font-size:16px;color:var(--soft);line-height:1.35}
+.dot{width:20px;height:20px;border-radius:50%;background:var(--indigo);border:4px solid #C9D2EE}
+.dot.on{background:var(--amber);border-color:#FFE0A6}
+</style></head><body>
+
+<!-- ============ 1. TITLE ============ -->
+<section class="cover">
+  <div class="orbit"></div><div class="planet"></div>
+  <div style="position:absolute;left:96px;top:84px;right:96px;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:16px;align-items:center">
+      <div class="mark" style="background:#fff"><svg viewBox="0 0 48 32" fill="none" stroke="#0E1B3D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:3px;color:#C9D2EE">NASA SPACE APPS CHALLENGE 2026</div>
+    </div>
+    <div style="font-size:18px;font-weight:600;color:#C9D2EE;border:1.5px solid rgba(255,255,255,.25);padding:8px 18px;border-radius:999px">Simulated data · Not a medical device</div>
+  </div>
+
+  <div style="position:absolute;left:96px;top:250px;width:860px;display:flex;flex-direction:column;gap:28px">
+    <div style="display:inline-flex;align-self:flex-start;gap:10px;align-items:center;background:rgba(245,165,36,.15);border:1.5px solid rgba(245,165,36,.5);color:#FFD08A;font-size:19px;font-weight:700;padding:8px 18px;border-radius:999px"><i class="ph-bold ph-target"></i> Challenge: Create Health Monitoring Software for Astronauts on Space Missions</div>
+    <h1 style="font-size:124px;letter-spacing:-4px;line-height:.95;color:#fff">Crew Health<br><span style="color:var(--amber)">Monitor</span></h1>
+    <p style="font-size:36px;line-height:1.3;color:#E3E8F7;font-weight:500">Health monitoring for a crew that<br>cannot call a doctor.</p>
+    <p style="font-size:22px;color:#A9B4D6;line-height:1.4">One set of readings, checked by <b style="color:#fff">Earth-standard</b> and <b style="color:#FFD08A">space-adapted</b> rules, side by side, every rule linked to its source.</p>
+  </div>
+
+  <div style="position:absolute;right:96px;top:230px;width:820px">
+    <img class="shot" src="../signal-detail.png" style="height:512px;border:2px solid rgba(255,255,255,.18);box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 10px rgba(255,255,255,.04)">
+    <div style="position:absolute;left:-40px;bottom:-26px;background:#fff;color:var(--navy);border-radius:16px;padding:12px 18px;display:flex;gap:10px;align-items:center;font-size:18px;font-weight:700;box-shadow:0 16px 40px rgba(0,0,0,.4)"><span class="chip chk">Earth: Check</span><i class="ph-bold ph-arrow-right"></i><span class="chip ok" style="background:var(--teal-soft)">Space: Normal</span><span style="font-size:15px;color:var(--muted)">hematocrit, day 60</span></div>
+  </div>
+
+  <div style="position:absolute;left:96px;right:96px;bottom:70px;display:flex;gap:20px;align-items:stretch">
+    <div style="background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.16);border-radius:18px;padding:16px 24px;display:flex;gap:16px;align-items:center">
+      <i class="ph-fill ph-users-three" style="font-size:40px;color:var(--amber)"></i>
+      <div><div style="font-size:15px;color:#A9B4D6;font-weight:700;letter-spacing:2px">TEAM</div><div style="font-size:28px;font-weight:800">[TEAM NAME]</div></div>
+    </div>
+    <div style="flex:1;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.16);border-radius:18px;padding:16px 24px;display:flex;gap:40px;align-items:center">
+      <div style="font-size:15px;color:#A9B4D6;font-weight:700;letter-spacing:2px">MEMBERS</div>
+      <div style="font-size:24px;font-weight:700">[Member 1]</div><div style="font-size:24px;font-weight:700">[Member 2]</div><div style="font-size:24px;font-weight:700">[Member 3]</div><div style="font-size:24px;font-weight:700">[Member 4]</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. PROBLEM ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">The Problem &amp; Inspiration</span><h1>Help Is <span class="hl">Too Far Away</span> to Wait For</h1><p class="sub">On a Mars mission the crew must notice, judge and act on health problems by themselves, using rules written for Earth.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+
+  <div class="row" style="flex:1">
+    <div class="col" style="width:520px">
+      <div class="panel f1"><div class="ph"><i class="ph-bold ph-warning-circle"></i>Why It Is Hard</div>
+        <div class="pb" style="justify-content:space-around">
+          <div class="item"><div class="ic"><i class="ph-bold ph-broadcast"></i></div><div><div class="big">22 min</div><p>one-way message delay to Earth at its longest. A question and its answer take about 44 minutes.</p></div></div>
+          <div class="item"><div class="ic n"><i class="ph-bold ph-eye"></i></div><div><div class="big">70%</div><p>of station astronauts show some swelling at the back of the eye <b>(NASA HRP)</b>.</p></div></div>
+          <div class="item"><div class="ic r"><i class="ph-bold ph-bone"></i></div><div><div class="big a">1–1.5%</div><p>of hip and spine bone lost every month in weightlessness <b>(NASA HRP)</b>.</p></div></div>
+        </div></div>
+    </div>
+
+    <div class="col f1">
+      <div class="panel f1"><div class="ph amber"><i class="ph-bold ph-flask"></i>Earth's Normal Ranges Fail in Two Ways</div>
+        <div class="pb">
+          <table class="lg">
+            <tr><th style="width:30%">Reading</th><th>What really happens in space</th><th style="width:150px">Earth rule</th><th style="width:150px">Space rule</th></tr>
+            <tr><td><b>Hematocrit +10–12%</b></td><td>Plasma volume drops in weightlessness. Earth calls it dehydration. It is expected.</td><td><span class="chip chk">Check</span></td><td><span class="chip ok">Normal</span></td></tr>
+            <tr><td><b>Cabin CO₂ under Earth limits</b></td><td>Still gives crews headaches. Each extra 1 mmHg doubled the odds on the station.</td><td><span class="chip ok">Normal</span></td><td><span class="chip chk">Check</span></td></tr>
+            <tr><td><b>1.6 L urine a day</b></td><td>Bones shed calcium into urine. NASA wants 2 L to avoid kidney stones.</td><td><span class="chip ok">Normal</span></td><td><span class="chip chk">Check</span></td></tr>
+          </table>
+          <div class="row" style="gap:14px;margin-top:auto">
+            <div class="item f1" style="background:var(--amber-soft);border-radius:16px;padding:14px"><div class="ic" style="background:#fff"><i class="ph-bold ph-siren"></i></div><div><h4>False alarms</h4><p>Normal adaptation is flagged, so the crew learns to ignore alerts.</p></div></div>
+            <div class="item f1" style="background:var(--red-soft);border-radius:16px;padding:14px"><div class="ic r" style="background:#fff"><i class="ph-bold ph-eye-slash"></i></div><div><h4>Missed risks</h4><p>Problems that only matter in space pass every Earth check.</p></div></div>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="col" style="width:430px">
+      <div class="panel f1"><div class="ph indigo"><i class="ph-bold ph-lightbulb"></i>Why We Chose It</div>
+        <div class="pb" style="justify-content:space-around">
+          <div class="item"><div class="ic n"><i class="ph-bold ph-user-focus"></i></div><div><h4>No doctor on board</h4><p>A non-doctor must decide before Earth can answer.</p></div></div>
+          <div class="item"><div class="ic n"><i class="ph-bold ph-scales"></i></div><div><h4>The rules are wrong, not the data</h4><p>The fix is a second rule set grounded in spaceflight studies.</p></div></div>
+          <div class="item"><div class="ic n"><i class="ph-bold ph-globe-hemisphere-west"></i></div><div><h4>It matters on Earth too</h4><p>Antarctic bases, ships and remote clinics face the same gap.</p></div></div>
+        </div></div>
+    </div>
+  </div>
+  <div class="take"><span class="lab"><i class="ph-bold ph-key"></i>Key insight</span><span>A crew far from help does not need more alarms. It needs <em>the right rules for where it is</em>.</span></div>
+  <div class="foot"><span>Sources: NASA Human Research Program risk pages · Kunz 2017 · Law 2014 · NASA renal stone studies</span><span class="mono">02</span></div>
+</section>
+
+<!-- ============ 3. SOLUTION ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">Proposed Solution</span><h1>One Set of Data, <span class="hl">Two Sets of Rules</span></h1><p class="sub">A health monitor that runs on board with no connection and shows the Earth verdict and the space verdict side by side.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+
+  <div class="panel"><div class="ph"><i class="ph-bold ph-flow-arrow"></i>How It Works</div>
+    <div class="pb" style="flex-direction:row;align-items:stretch;gap:14px">
+      <div class="f1" style="display:flex;flex-direction:column;gap:10px">
+        <div class="cap">1 · INPUTS</div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-note-pencil"></i></div><div><h4>Daily check-in</h4><p>Keyboard, mouse or touch, plus a note in your own words.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-watch"></i></div><div><h4>Device feed &amp; images</h4><p>Wearable and exam readings, photo or ultrasound attached.</p></div></div>
+      </div>
+      <i class="ph-bold ph-caret-double-right arrow"></i>
+      <div style="flex:1.25;background:#F6F8FD;border:2px dashed #C3CCE6;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div class="cap">2 · RULE ENGINE (RUNS IN THE BROWSER)</div>
+        <div class="row" style="gap:12px">
+          <div class="f1" style="background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px"><h4 style="font-size:20px"><i class="ph-bold ph-globe"></i> Earth-standard</h4><p class="p">Lab reference ranges</p></div>
+          <div class="f1" style="background:#fff;border:2px solid var(--amber);border-radius:14px;padding:12px"><h4 style="font-size:20px"><i class="ph-bold ph-planet"></i> Space-adapted</h4><p class="p">Published spaceflight sources</p></div>
+        </div>
+        <p class="p">Unsourced thresholds are labelled <b>“Demo parameter”</b> on screen.</p>
+      </div>
+      <i class="ph-bold ph-caret-double-right arrow"></i>
+      <div class="f1" style="display:flex;flex-direction:column;gap:10px">
+        <div class="cap">3 · OUTPUTS</div>
+        <div class="item"><div class="ic"><i class="ph-bold ph-person-simple"></i></div><div><h4>Where, on a 3D body</h4><p>The flagged part glows; the camera flies to it.</p></div></div>
+        <div class="item"><div class="ic"><i class="ph-bold ph-hand-pointing"></i></div><div><h4>What to do next</h4><p>Plain words first, then why, then the source.</p></div></div>
+      </div>
+    </div></div>
+
+  <div class="row" style="flex:1">
+    <div class="panel f1"><div class="ph amber"><i class="ph-bold ph-check-square"></i>What the Crew Gets</div>
+      <div class="pb">
+        <table class="lg">
+          <tr><th></th><th>Earth-standard rules</th><th>Space-adapted rules</th></tr>
+          <tr><td><b>Normal spaceflight change</b></td><td><span class="chip chk">False alarm</span></td><td><span class="chip ok">Explained as expected</span></td></tr>
+          <tr><td><b>Concern only in space</b></td><td><span class="chip urg">Missed</span></td><td><span class="chip chk">Flagged + next step</span></td></tr>
+          <tr><td><b>Where the rule comes from</b></td><td>Lab reference range</td><td>A spaceflight paper, linked on screen</td></tr>
+        </table>
+      </div></div>
+    <div class="panel" style="width:560px"><div class="ph indigo"><i class="ph-bold ph-brain"></i>Rules, Not a Prediction Model, by Choice</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic n"><i class="ph-bold ph-database"></i></div><div><h4>No data to learn from</h4><p>Day-by-day in-flight astronaut vitals are not public.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-wifi-slash"></i></div><div><h4>Must run on board</h4><p>No waiting 40 minutes for a cloud service.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-magnifying-glass"></i></div><div><h4>Every flag can be checked</h4><p>Reason and source shown, unlike a model score.</p></div></div>
+      </div></div>
+  </div>
+
+  <div class="row" style="gap:16px">
+    <div class="take f1" style="justify-content:center"><span style="font-size:40px;font-weight:800;color:var(--amber)" class="mono">15</span>signals</div>
+    <div class="take f1" style="justify-content:center"><span style="font-size:40px;font-weight:800;color:var(--amber)" class="mono">5</span>NASA hazards tagged</div>
+    <div class="take f1" style="justify-content:center"><span style="font-size:40px;font-weight:800;color:var(--amber)" class="mono">3</span>mission settings</div>
+    <div class="take f1" style="justify-content:center"><span style="font-size:40px;font-weight:800;color:var(--amber)" class="mono">0</span>connection needed</div>
+  </div>
+  <div class="foot"><span>Rules live in one tested file shared by screens and server (src/triage.ts)</span><span class="mono">03</span></div>
+</section>
+
+<!-- ============ 4. DEMO ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">Project Demo &amp; Visuals</span><h1>The <span class="hl">Working Prototype</span></h1><p class="sub">Screenshots from the running app at crew-health-monitor.vercel.app. All people and readings are simulated.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+  <div class="row" style="flex:1;min-height:0">
+    <div class="panel" style="width:1010px"><div class="ph"><i class="ph-bold ph-person-simple"></i>Crew Health: 3D Body + Signal Explained</div>
+      <div class="pb" style="gap:10px">
+        <img class="shot" src="../signal-detail.png" style="height:620px;object-fit:contain">
+        <div class="row" style="gap:10px;flex-wrap:wrap">
+          <span class="chip chk"><i class="ph-bold ph-map-pin"></i>Neck vein glows, camera moves to it</span>
+          <span class="chip ok"><i class="ph-bold ph-hand-pointing"></i>“Do this next” first</span>
+          <span class="chip chk"><i class="ph-bold ph-scales"></i>Earth vs space verdict</span>
+          <span class="chip ok"><i class="ph-bold ph-link"></i>NASA risk + current study</span>
+        </div>
+      </div></div>
+    <div class="f1 grid" style="grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:16px;min-height:0">
+      <div class="panel"><div class="ph indigo" style="font-size:18px;padding:8px 14px"><i class="ph-bold ph-sun"></i>Today</div><div class="pb" style="padding:10px"><img class="shot" src="../today.png" style="height:205px"></div></div>
+      <div class="panel"><div class="ph indigo" style="font-size:18px;padding:8px 14px"><i class="ph-bold ph-chart-line-up"></i>Trends since launch</div><div class="pb" style="padding:10px"><img class="shot" src="../trends.png" style="height:205px;object-position:center 62%"></div></div>
+      <div class="panel"><div class="ph indigo" style="font-size:18px;padding:8px 14px"><i class="ph-bold ph-broadcast"></i>Earth link with delay</div><div class="pb" style="padding:10px"><img class="shot" src="../earth-link.png" style="height:205px"></div></div>
+      <div class="panel"><div class="ph indigo" style="font-size:18px;padding:8px 14px"><i class="ph-bold ph-book-open"></i>Ask the handbook</div><div class="pb" style="padding:10px"><img class="shot" src="../ask.png" style="height:205px"></div></div>
+      <div class="panel"><div class="ph" style="font-size:18px;padding:8px 14px;background:var(--red)"><i class="ph-bold ph-first-aid" style="color:#fff"></i>Emergency steps</div><div class="pb" style="padding:10px"><img class="shot" src="../emergency-step.png" style="height:205px"></div></div>
+      <div class="panel"><div class="ph indigo" style="font-size:18px;padding:8px 14px"><i class="ph-bold ph-heartbeat"></i>Heart &amp; blood layer</div><div class="pb" style="padding:10px"><img class="shot" src="../blood-vessels.png" style="height:205px;object-position:center"></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Body models: BodyParts3D (DBCLS) and HRA 3D Reference Organs (HuBMAP), CC BY 4.0</span><span class="mono">04</span></div>
+</section>
+
+<!-- ============ 5. UX ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">User Experience</span><h1>A Crew Member's Day, <span class="hl">Step by Step</span></h1><p class="sub">Built for a day on board, not only for alarms. No medical training assumed.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(6,1fr);gap:16px;margin-top:10px">
+    <div class="step"><span class="num">1</span><img class="shot" src="../sign-in.png" style="height:130px;object-position:center"><h4>Enter</h4><p>Choose your name. Crew, medical officer or Earth flight surgeon.</p></div>
+    <div class="step"><span class="num">2</span><img class="shot" src="../today.png" style="height:130px"><h4>See today</h4><p>Exams due, readings getting old, messages from Earth.</p></div>
+    <div class="step"><span class="num">3</span><img class="shot" src="../crew-health.png" style="height:130px;object-position:right top"><h4>Log a check-in</h4><p>Type readings, add a note, attach a photo or ultrasound.</p></div>
+    <div class="step"><span class="num">4</span><img class="shot" src="../signal-detail.png" style="height:130px;object-position:center"><h4>Find the problem</h4><p>The body part glows. Tap it and the camera flies there.</p></div>
+    <div class="step"><span class="num">5</span><img class="shot" src="../signal-detail.png" style="height:130px;object-position:right 30%"><h4>Act on it</h4><p>Do this next, then why, then how to measure, then the source.</p></div>
+    <div class="step"><span class="num">6</span><img class="shot" src="../earth-link.png" style="height:130px"><h4>Report to Earth</h4><p>Send with the real delay and a countdown. Emergency is one tap away.</p></div>
+  </div>
+  <div class="row" style="flex:1">
+    <div class="panel f1"><div class="ph"><i class="ph-bold ph-shield-check"></i>Who Sees What</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic n"><i class="ph-bold ph-user"></i></div><div><h4>Crew member</h4><p>Only their own health data.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-first-aid-kit"></i></div><div><h4>Crew medical officer</h4><p>Every crew member, plus a whole-crew view.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-globe-hemisphere-west"></i></div><div><h4>Flight surgeon on Earth</h4><p>Only what the crew sent, after the delay.</p></div></div>
+      </div></div>
+    <div class="panel f1"><div class="ph amber"><i class="ph-bold ph-paint-brush"></i>Design Choices</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic"><i class="ph-bold ph-text-aa"></i></div><div><h4>Plain words first</h4><p>Action before explanation, no jargon on top.</p></div></div>
+        <div class="item"><div class="ic"><i class="ph-bold ph-palette"></i></div><div><h4>Colour only means attention</h4><p>Normal / Check / Urgent, readable at a glance.</p></div></div>
+        <div class="item"><div class="ic"><i class="ph-bold ph-clock-countdown"></i></div><div><h4>Stale data warned</h4><p>Old readings are flagged so they get re-measured.</p></div></div>
+      </div></div>
+    <div class="panel f1"><div class="ph indigo"><i class="ph-bold ph-chats-circle"></i>Ask &amp; Emergency</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic n"><i class="ph-bold ph-book-open-text"></i></div><div><h4>Handbook that cannot invent</h4><p>Answers only from readings, rules and steps. Says “I don't have that”.</p></div></div>
+        <div class="item"><div class="ic r"><i class="ph-bold ph-timer"></i></div><div><h4>Timed emergency walkthroughs</h4><p>Large controls; each step marked published or demo wording.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-medal"></i></div><div><h4>No streaks, by choice</h4><p>Points would reward hiding symptoms.</p></div></div>
+      </div></div>
+  </div>
+  <div class="foot"><span>Live demo: one click to enter, no password · Local run adds a Node + SQLite server that enforces roles</span><span class="mono">05</span></div>
+</section>
+
+<!-- ============ 6. DATA ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">NASA &amp; Partner Data Integration</span><h1>Every Rule <span class="hl">Points to a Source</span></h1><p class="sub">All five challenge resources are used in the app, plus NASA open data and published spaceflight measurements.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:18px;flex:1">
+    <div class="panel"><div class="ph"><i class="ph-bold ph-database"></i>NASA OSDR · OSD-569</div><div class="pb"><p class="p">Inspiration4 complete blood count. Gives the <b>lab ranges</b> for white cells and lymphocytes and the <b>pre-flight blood values</b> each crew member starts from.</p><div class="row" style="gap:8px;margin-top:auto"><span class="chip ok">Immune signal</span><span class="chip ok">Baselines</span></div></div></div>
+    <div class="panel"><div class="ph"><i class="ph-bold ph-warning"></i>NASA HRP · Five Hazards</div><div class="pb"><p class="p">Every signal is tagged with its hazard: <b>radiation, isolation, distance from Earth, gravity changes, hostile closed environment</b>.</p><div class="row" style="gap:8px;margin-top:auto"><span class="chip chk">On every signal</span></div></div></div>
+    <div class="panel"><div class="ph"><i class="ph-bold ph-list-checks"></i>NASA HRP · Human Risks</div><div class="pb"><p class="p">Each signal links to its official risk page (SANS, bone, nutrition, immune, sleep, behaviour, cardiovascular, radiation). Facts used: <b>1–1.5% bone a month</b>, <b>~70% with eye swelling</b>.</p></div></div>
+    <div class="panel"><div class="ph indigo"><i class="ph-bold ph-microscope"></i>NASA HRP · Ongoing Research</div><div class="pb"><p class="p">Signals name the current NASA study on the same question:</p><div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip ok">Venous Haemostasis</span><span class="chip ok">Thigh Cuff</span><span class="chip ok">ARCHeR</span><span class="chip ok">Immune Biomarkers</span><span class="chip ok">Zero T2</span></div></div></div>
+    <div class="panel"><div class="ph indigo"><i class="ph-bold ph-radioactive"></i>CSA · Monitoring Radiation</div><div class="pb"><p class="p">The radiation explanation notes that <b>neutrons make up about 30%</b> of the dose on the station.</p><div class="row" style="gap:8px;margin-top:auto"><span class="chip ok">Canadian Space Agency</span></div></div></div>
+    <div class="panel"><div class="ph indigo"><i class="ph-bold ph-rocket-launch"></i>CSA · Why Science in Space</div><div class="pb"><p class="p">The mission settings follow its deep-space list: more weightlessness, more radiation, longer isolation, longer delays, <b>less help from Earth</b>.</p><div class="row" style="gap:8px;margin-top:auto"><span class="chip ok">Canadian Space Agency</span></div></div></div>
+  </div>
+  <div class="row">
+    <div class="panel f1"><div class="ph amber"><i class="ph-bold ph-planet"></i>Measured Radiation per Mission Setting</div>
+      <div class="pb" style="padding:12px 20px"><table>
+        <tr><th>Setting</th><th>Dose / day</th><th>Source</th><th>Delay one way</th></tr>
+        <tr><td><b>Space station</b></td><td class="mono">0.73 mSv</td><td>Three peer-reviewed ISS measurements</td><td>&lt; 1 s</td></tr>
+        <tr><td><b>Moon surface</b></td><td class="mono">1.37 mSv</td><td>Chang'E-4 lander</td><td>1.3 s</td></tr>
+        <tr><td><b>Mars transit</b></td><td class="mono">1.8 mSv</td><td>Curiosity, measured in cruise</td><td>4–22 min</td></tr>
+      </table></div></div>
+    <div class="panel" style="width:620px"><div class="ph"><i class="ph-bold ph-stack"></i>Technology</div>
+      <div class="pb" style="padding:14px 20px">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+          <div class="item"><div class="ic n" style="width:44px;height:44px;font-size:22px"><i class="ph-bold ph-atom"></i></div><div><h4 style="font-size:18px">React + TypeScript</h4><p style="font-size:15px">Screens and tested rules</p></div></div>
+          <div class="item"><div class="ic n" style="width:44px;height:44px;font-size:22px"><i class="ph-bold ph-cube"></i></div><div><h4 style="font-size:18px">three.js</h4><p style="font-size:15px">3D anatomical body</p></div></div>
+          <div class="item"><div class="ic n" style="width:44px;height:44px;font-size:22px"><i class="ph-bold ph-hard-drives"></i></div><div><h4 style="font-size:18px">Node + SQLite</h4><p style="font-size:15px">API, roles, storage</p></div></div>
+          <div class="item"><div class="ic n" style="width:44px;height:44px;font-size:22px"><i class="ph-bold ph-lightning"></i></div><div><h4 style="font-size:18px">Vite · Tailwind · Motion</h4><p style="font-size:15px">Fast, offline-capable UI</p></div></div>
+        </div>
+      </div></div>
+  </div>
+  <div class="foot"><span>No source gives a number? The threshold is labelled “Demo parameter” on screen. Nothing unconfirmed is shown as fact.</span><span class="mono">06</span></div>
+</section>
+
+<!-- ============ 7. IMPACT ============ -->
+<section>
+  <div class="hd">
+    <div class="mark"><svg viewBox="0 0 48 32" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h10l5-12 7 22 6-16 4 6h12"/></svg></div>
+    <div class="t"><span class="kicker">Impact &amp; Future Scope</span><h1>Earth Rules for Earth. <span class="hl">Space Rules for Space.</span></h1><p class="sub">From a hackathon prototype to a tool a crew could trust, and the same idea back on Earth.</p></div>
+    <div class="teampill">TEAM<b>[TEAM NAME]</b></div>
+  </div>
+  <div class="row" style="flex:1">
+    <div class="panel f1"><div class="ph"><i class="ph-bold ph-rocket"></i>Impact in Space</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic t"><i class="ph-bold ph-bell-slash"></i></div><div><h4>Fewer false alarms</h4><p>Expected adaptation is explained, so real alerts are trusted.</p></div></div>
+        <div class="item"><div class="ic"><i class="ph-bold ph-crosshair"></i></div><div><h4>Space-only risks caught</h4><p>CO₂ headaches, kidney stones, neck vein clots, eye swelling.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-user-check"></i></div><div><h4>Crew autonomy</h4><p>Act in minutes, not after a 44-minute round trip.</p></div></div>
+      </div></div>
+    <div class="panel f1"><div class="ph indigo"><i class="ph-bold ph-globe-hemisphere-east"></i>Impact on Earth</div>
+      <div class="pb" style="justify-content:space-around">
+        <div class="item"><div class="ic n"><i class="ph-bold ph-snowflake"></i></div><div><h4>Polar and research stations</h4><p>Months without a doctor, long evacuation times.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-boat"></i></div><div><h4>Ships and submarines</h4><p>Closed cabins, CO₂ exposure, delayed help.</p></div></div>
+        <div class="item"><div class="ic n"><i class="ph-bold ph-first-aid"></i></div><div><h4>Remote clinics</h4><p>Wherever a non-doctor must decide before help arrives.</p></div></div>
+      </div></div>
+    <div class="panel" style="width:560px"><div class="ph amber"><i class="ph-bold ph-seal-warning"></i>Honest Limits Today</div>
+      <div class="pb" style="justify-content:space-around">
+        <p class="p"><i class="ph-bold ph-dot-outline"></i> All people and readings are <b>simulated</b>; not a medical device.</p>
+        <p class="p"><i class="ph-bold ph-dot-outline"></i> Some thresholds are <b>demo parameters</b>, shown as such.</p>
+        <p class="p"><i class="ph-bold ph-dot-outline"></i> Images are stored and shown, <b>not analysed</b>.</p>
+        <p class="p"><i class="ph-bold ph-dot-outline"></i> Moon fluid shift (60%) is an <b>assumption</b>; no long Moon stay measured.</p>
+      </div></div>
+  </div>
+  <div class="panel"><div class="ph"><i class="ph-bold ph-path"></i>Roadmap Beyond the Hackathon</div>
+    <div class="road" style="padding:6px 8px">
+      <div class="phase"><div class="dot on"></div><span class="when">NOW</span><h4>Working prototype</h4><p>15 signals, 2 rule sets, 3 missions, offline handbook.</p></div>
+      <div class="phase"><div class="dot"></div><span class="when">PHASE 1</span><h4>Real devices</h4><p>Wearables and exam devices replace the simulated feed.</p></div>
+      <div class="phase"><div class="dot"></div><span class="when">PHASE 2</span><h4>Secure by design</h4><p>Agency sign-in, encryption at rest and in transit, images sent to Earth.</p></div>
+      <div class="phase"><div class="dot"></div><span class="when">PHASE 3</span><h4>Clinical validation</h4><p>Flight surgeons confirm every threshold; analog missions test it.</p></div>
+      <div class="phase"><div class="dot"></div><span class="when">PHASE 4</span><h4>Beyond orbit &amp; Earth</h4><p>Moon and Mars data, then remote-care settings on Earth.</p></div>
+    </div></div>
+  <div class="take"><span class="lab"><i class="ph-bold ph-play"></i>Try it</span><span class="mono" style="color:var(--amber)">crew-health-monitor.vercel.app</span><span style="opacity:.6">·</span><span class="mono" style="font-size:19px">github.com/AdityaK0804/Crew-Health-Monitor</span><span style="margin-left:auto;font-weight:800;font-size:26px">Thank you.</span></div>
+  <div class="foot"><span>Educational prototype using simulated data. Not a medical device.</span><span class="mono">07</span></div>
+</section>
+</body></html>

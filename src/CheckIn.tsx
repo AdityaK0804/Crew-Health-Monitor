@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { motion } from 'motion/react'
-import { EASE, SPRING } from './ui'
+import { useEffect, useRef, useState } from 'react'
+import { closeTopLayer, settled } from './topLayer'
 import { validateReading } from './validate'
 import type { MissionId } from './data/missions'
 import { CREW } from './data/simulatedCrew'
@@ -47,6 +46,38 @@ export default function CheckIn({ day, checkIns, mission, crewIds, initialCrewId
   const [error, setError] = useState<string | null>(null)
   const [imageBusy, setImageBusy] = useState(false)
 
+  // A native modal <dialog>: the browser makes the page behind it inert, keeps focus inside,
+  // closes it on Esc or the back gesture, and returns focus to the button that opened it.
+  const dialog = useRef<HTMLDialogElement>(null)
+  const saved = useRef<{ crewId: string; reading: CrewReading } | null>(null)
+  const latest = useRef({ onSave, onClose })
+  latest.current = { onSave, onClose }
+
+  useEffect(() => {
+    const dlg = dialog.current
+    if (!dlg) return
+    if (!dlg.open) dlg.showModal()
+    // Esc and the back gesture go through the same animated close as the Cancel button.
+    const cancel = (e: Event) => {
+      e.preventDefault()
+      void closeTopLayer(dlg)
+    }
+    // Leave the page only after the exit animation, then save or discard.
+    const close = async () => {
+      await settled(dlg)
+      const s = saved.current
+      if (s) latest.current.onSave(s.crewId, s.reading)
+      else latest.current.onClose()
+    }
+    dlg.addEventListener('cancel', cancel)
+    dlg.addEventListener('close', close)
+    return () => {
+      dlg.removeEventListener('cancel', cancel)
+      dlg.removeEventListener('close', close)
+    }
+  }, [])
+  const dismiss = () => dialog.current && void closeTopLayer(dialog.current)
+
   const pickImage = async (file: File | undefined) => {
     if (!file) return
     setError(null)
@@ -68,29 +99,20 @@ export default function CheckIn({ day, checkIns, mission, crewIds, initialCrewId
   const field = 'min-h-11 w-full rounded-[10px] border border-line-strong bg-ground px-3 text-ink transition-colors focus:border-ink'
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: EASE }}
-      onKeyDown={(e) => e.key === 'Escape' && onClose()}
-      className="fixed inset-0 z-20 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm sm:items-center"
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialog}
       aria-labelledby="checkin-title"
+      className="top-layer m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-line-strong bg-panel p-0 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
     >
-      <motion.form
-        initial={{ y: 28, scale: 0.97 }}
-        animate={{ y: 0, scale: 1 }}
-        exit={{ y: 16, scale: 0.98 }}
-        transition={SPRING}
+      <form
         onSubmit={(e) => {
           e.preventDefault()
           const v = validateReading(r)
           if (!v.ok) return setError(v.error)
-          onSave(crewId, v.reading)
+          saved.current = { crewId, reading: v.reading }
+          dismiss()
         }}
-        className="my-auto w-full max-w-2xl rounded-2xl border border-line-strong bg-panel p-6 shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
+        className="p-6"
       >
         <h2 id="checkin-title" className="text-lg font-semibold">
           Log a check-in for day {day}
@@ -185,14 +207,14 @@ export default function CheckIn({ day, checkIns, mission, crewIds, initialCrewId
         )}
 
         <div className="mt-6 flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="press min-h-11 rounded-[10px] border border-line-strong px-4 font-medium hover:border-muted">
+          <button type="button" onClick={dismiss} className="press min-h-11 rounded-[10px] border border-line-strong px-4 font-medium hover:border-muted">
             Cancel
           </button>
           <button type="submit" className="press min-h-11 rounded-[10px] bg-ink px-5 font-semibold text-ground hover:bg-white">
             Save and re-check
           </button>
         </div>
-      </motion.form>
-    </motion.div>
+      </form>
+    </dialog>
   )
 }
